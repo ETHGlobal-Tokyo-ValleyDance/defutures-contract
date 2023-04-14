@@ -19,6 +19,15 @@ abstract contract UniswapV2Defuture is BaseDefuture, IUniswapV2Defuture {
 
     function closePosition(uint positionId, address to, uint deadline) public {}
 
+    function getStrikeAmount(uint _leadingBuy, uint _leadingSell, uint _amountBuy) public returns (uint) {}
+
+    // getFuturePrice -> getStrikeAmount ?
+
+    function clear(uint positionId, address to) external returns (uint) {}
+
+    // TODO:
+    function liquidate(uint positionId) public override {}
+
     constructor(
         uint16 _minMarginBps,
         uint16 _liquidateFactorBps,
