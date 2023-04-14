@@ -11,6 +11,8 @@ abstract contract UniswapV2Defuture is BaseDefuture, IUniswapV2Defuture {
         BUY1
     }
 
+    uint leading0;
+    uint leading1;
     address public token0;
     address public token1;
     address public pair;
@@ -31,7 +33,29 @@ abstract contract UniswapV2Defuture is BaseDefuture, IUniswapV2Defuture {
         factory = msg.sender;
     }
 
-    function addPosition(address buyToken, address sellToken, address to, uint margin, uint deadline) public {}
+    function addPosition(address to, bool buy0, uint112 amountBuy, uint112 marginWithFee) public override {
+        Slot0 memory _slot0 = slot0;
+
+        uint112 strike = getStrikeAmount(_leadingBuy, _leadingSell, amountBuy);
+        uint112 margin = (marginWithFee * 997) / 1000;
+        require(margin >= (strike * _slot0.minMarginBps) / 1E4, "DEFUTURE: MARGIN SHORTAGE");
+
+        // sync K ?
+
+        if (buy0) {
+            SafeToken.safeTransferFrom(token1, msg.sender, address(this), marginWithFee);
+            // buy token0 Futures
+            leading0 -= uint112(amountBuy);
+            leading1 += (strike * 997) / 1000;
+        } else {
+            SafeToken.safeTransferFrom(token0, msg.sender, address(this), marginWithFee);
+            // buy token1 Futures
+            leading0 += (strike * 997) / 1000;
+            leading1 -= uint112(amountBuy);
+        }
+
+        _mintPosition(to, uint8(buy0 ? PositionType.BUY0 : PositionType.BUY1), margin, strike, amountBuy);
+    }
 
     function closePosition(uint positionId, address to, uint deadline) public {}
 
@@ -39,7 +63,13 @@ abstract contract UniswapV2Defuture is BaseDefuture, IUniswapV2Defuture {
 
     // getFuturePrice -> getStrikeAmount ?
 
-    function clear(uint positionId, address to) external returns (uint) {}
+    function clear(uint positionId, address to) external returns (uint) {
+        Position memory p = positions[positionId];
+        uint futurePrice = getFuturePrice(p.positionType, p.future);
+        closePosition(positionId, to, futurePrice);
+        _burnPosition(positionId);
+        return uint(p.margin + futurePrice / p.strike)
+    }
 
     // TODO:
     function liquidate(uint positionId) public override {}
