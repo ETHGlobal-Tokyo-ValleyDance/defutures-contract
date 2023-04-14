@@ -32,6 +32,32 @@ abstract contract BaseDefuture is IBaseDefuture, ERC721 {
     /** TODO: REMOVE */
     mapping(address => uint[]) public positionIdOf;
 
+    /***** EVENTS *****/
+    event AddPosition(
+        address indexed owner,
+        uint positionId,
+        uint8 positionType,
+        uint112 margin,
+        uint112 strike,
+        uint112 future
+    );
+    event ClosePosition(
+        address indexed owner,
+        uint positionId,
+        uint8 positionType,
+        uint112 margin,
+        uint112 strike,
+        uint112 future
+    );
+    event Liquidated(
+        address indexed owner,
+        uint positionId,
+        uint8 positionType,
+        uint112 margin,
+        uint112 futurePrice
+    );
+    event ChangeLiquidatorStatus(address liquidator, bool status);
+
     modifier lock() {
         require(!mutex, "DEFUTURE: LOCKED");
         mutex = true;
@@ -73,4 +99,14 @@ abstract contract BaseDefuture is IBaseDefuture, ERC721 {
     ) external view virtual override returns (bool);
 
     function liquidate(uint positionId) external virtual override;
+
+    function changeLiquidatorStatus(
+        address[] calldata _liquidators,
+        bool status
+    ) external {
+        for (uint i = 0; i < _liquidators.length; i++) {
+            isLiquidator[_liquidators[i]] = status;
+            emit ChangeLiquidatorStatus(_liquidators[i], status);
+        }
+    }
 }
