@@ -26,8 +26,11 @@ abstract contract BaseDefuture is IBaseDefuture, ERC721 {
     uint private _totalSupply = 0;
 
     // preset maturities by admin
-    mapping (uint => address) public maturities;
-    
+    mapping(uint => address) public maturities;
+    mapping(uint => Position) public positions;
+    mapping(address => bool) public isLiquidator;
+    /** TODO: REMOVE */
+    mapping(address => uint[]) public positionIdOf;
 
     modifier lock() {
         require(!mutex, "DEFUTURE: LOCKED");
@@ -56,4 +59,18 @@ abstract contract BaseDefuture is IBaseDefuture, ERC721 {
         });
     }
 
+    function totalSupply() public view returns (uint) {
+        return _totalSupply;
+    }
+
+    function getFuturePrice(
+        uint8 positionType,
+        uint112 future
+    ) external view virtual override returns (uint112);
+
+    function isLiquidatable(
+        uint positionId
+    ) external view virtual override returns (bool);
+
+    function liquidate(uint positionId) external virtual override;
 }
