@@ -14,10 +14,10 @@ contract UniswapV2Defuture is BaseDefuture, IUniswapV2Defuture {
         BUY1
     }
 
-    address immutable token0;
-    address immutable token1;
-    address immutable pair;
-    address immutable factory;
+    address public immutable token0;
+    address public immutable token1;
+    address public immutable pair;
+    address public immutable factory;
     uint112 private leading0;
     uint112 private leading1;
     uint32 private timestampLastSync;
