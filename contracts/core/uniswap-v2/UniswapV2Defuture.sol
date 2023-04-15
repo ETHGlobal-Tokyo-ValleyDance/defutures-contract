@@ -126,6 +126,14 @@ contract UniswapV2Defuture is BaseDefuture, IUniswapV2Defuture {
         _mintPosition(to, uint8(buy0 ? PositionType.BUY0 : PositionType.BUY1), margin, strike, amountBuy);
     }
 
+    function _addMargin(uint positionId, uint112 amount) public {
+        Position memory p = positions[positionId];
+        SafeToken.safeTransferFrom(isBuy0(p.positionType) ? token1 : token0, msg.sender, address(this), amount);
+        uint112 currentMargin = p.margin + (amount * 997) / 1000;
+        positions[positionId].margin = currentMargin;
+        emit AddMargin(msg.sender, positionId, amount, currentMargin);
+    }
+
     function _closePosition(Position memory p, uint112 payback, uint112 futurePrice, address to) private {
         // token0을 사는 것이었으면, 구매 당시 leading0이(-) 되고 leading1이(+) 되었을 것
         // 포지션 종료 시에는 반대로 계산한다. 이때 token0에 대응되는 양은 futureAmount, token1은 futurePrice
@@ -153,11 +161,16 @@ contract UniswapV2Defuture is BaseDefuture, IUniswapV2Defuture {
         return uint(p.margin + futurePrice - p.strike);
     }
 
-    // getFuturePrice -> getStrikeAmount ?
+    function isLiquidatable(uint positionId) public view override returns (bool) {
+        if (!_exists(positionId)) return false;
+        Slot0 memory _slot0 = slot0;
+        Position memory p = positions[positionId];
 
-    // TODO:
+        uint112 futurePrice = getFuturePrice(p.positionType, p.future);
 
-    function isLiquidatable(uint positionId) public view override returns (bool) {}
+        // virtualMargin = p.margin + futurePrice - p.strike <= futurePrice * liquidateFactorBps / 1E4;
+        return p.margin + ((futurePrice * (1E4 - _slot0.liquidateFactorBps)) / 1E4) <= p.strike;
+    }
 
     function liquidate(uint positionId) public override lock onlyLiquidator {}
 

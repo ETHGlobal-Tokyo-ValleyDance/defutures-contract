@@ -40,6 +40,9 @@ abstract contract BaseDefuture is IBaseDefuture, ERC721 {
         uint112 strike,
         uint112 future
     );
+
+    event AddMargin(address indexed from, uint positionId, uint112 amount, uint112 currentMargin);
+
     event ClosePosition(
         address indexed owner,
         uint positionId,
