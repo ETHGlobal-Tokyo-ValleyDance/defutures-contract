@@ -44,7 +44,7 @@ Futures Price Formation : As mentioned earlier, a pair is instantiated using the
 Security level management: DeFi is finance. It heavily associates with money, where security is most demanded. We had to think of scenarios from scratch where security features should be added especially as futures involve complex mechanisms. Moreover, every functions were designed to be extremely explicit leaving no room for security issues. 
 
 ## User Flow 
-<img width="80%" src="https://github.com/ETHGlobal-Tokyo-ValleyDance/defutures-contract/issues/11"/>
+<img width="80%" src="https://user-images.githubusercontent.com/89185836/232258067-e61faddc-7f6a-4564-b28e-4937a3c6c51c.jpeg"/>
 
 ## Before Maturaity & After Maturaity
 <img width="80%" src="https://github.com/ETHGlobal-Tokyo-ValleyDance/defutures-contract/issues/12"/>
