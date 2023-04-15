@@ -48,11 +48,7 @@ contract UniswapV2DefutureRouter is IUniswapV2DefutureRouter {
         IUniswapV2Defuture(defuture).addPosition(to, buyToken < sellToken, amountBuy, marginWithFee);
     }
 
-    function getSwapAmountForAddLiquidity(
-        address base,
-        address farm,
-        uint amount
-    ) internal pure returns (uint swapAmount) {
+    function getSwapAmountForAddLiquidity(address, address, uint amount) internal pure returns (uint swapAmount) {
         swapAmount = amount / 2;
     }
 
@@ -70,7 +66,8 @@ contract UniswapV2DefutureRouter is IUniswapV2DefutureRouter {
 
         // swap할 양 + addLiquidity할 양
         SafeToken.safeTransferFrom(baseToken, msg.sender, address(this), spotAmount + hedgeAmount);
-        SafeToken.safeApprove(baseToken, router, spotAmount + hedgeAmount);
+        IERC20(baseToken).approve(router, spotAmount + hedgeAmount);
+        // SafeToken.safeApprove(baseToken, router, spotAmount + hedgeAmount);
 
         uint[] memory amounts;
         {
@@ -86,7 +83,7 @@ contract UniswapV2DefutureRouter is IUniswapV2DefutureRouter {
             );
         }
 
-        SafeToken.safeApprove(farmToken, router, amounts[1]);
+        IERC20(baseToken).approve(router, stakeBaseAmount);
         (, uint addedFarm, ) = IUniswapV2Router02(router).addLiquidity(
             baseToken,
             farmToken,
@@ -101,7 +98,8 @@ contract UniswapV2DefutureRouter is IUniswapV2DefutureRouter {
         uint totalMargin = amounts[1] - addedFarm;
 
         address defuture = IUniswapV2DefutureFactory(defutureFactory).getDefuture(baseToken, farmToken);
-        SafeToken.safeApprove(farmToken, defuture, totalMargin);
+        // SafeToken.safeApprove(farmToken, defuture, totalMargin);
+        IERC20(farmToken).approve(defuture, totalMargin);
         IUniswapV2Defuture(defuture).addPosition(
             to,
             baseToken < farmToken,
@@ -136,7 +134,6 @@ contract UniswapV2DefutureRouter is IUniswapV2DefutureRouter {
         // uint baseAmount1;
         //* if LP exist, burn and get base, farm token
         if (lpAmountDesired > 0) {
-            address pair = IUniswapV2Factory(factory).getPair(baseToken, farmToken);
             SafeToken.safeTransferFrom(pair, msg.sender, pair, lpAmountDesired);
             uint _farmAmount;
             (baseAmount, _farmAmount) = IUniswapV2Pair(pair).burn(address(this));
@@ -148,13 +145,7 @@ contract UniswapV2DefutureRouter is IUniswapV2DefutureRouter {
         path[0] = farmToken;
         path[1] = baseToken;
         SafeToken.safeApprove(farmToken, router, farmAmount);
-        uint[] memory amounts = IUniswapV2Router02(router).swapExactTokensForTokens(
-            farmAmount,
-            1,
-            path,
-            msg.sender,
-            block.timestamp + 30000
-        );
+        IUniswapV2Router02(router).swapExactTokensForTokens(farmAmount, 1, path, msg.sender, block.timestamp + 30000);
 
         SafeToken.safeTransfer(baseToken, to, baseAmount);
     }

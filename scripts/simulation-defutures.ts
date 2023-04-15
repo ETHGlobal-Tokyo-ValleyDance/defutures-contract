@@ -1,4 +1,6 @@
+import { readFileSync, writeFileSync } from "fs"
 import { network, ethers } from "hardhat"
+import path from "path"
 
 const developmentChains = ["hardhat", "localhost"]
 
@@ -11,13 +13,13 @@ const developmentChains = ["hardhat", "localhost"]
 // Token3Address = 0x12a380c04084454664ce5ff155319c8640164c60
 
 let uniswapV2DefutureFactory, uniswapV2DefutureRouter, uniswapV2Factory, uniswapV2Router, t1, t2, t3
-let uniswapV2DefutureFactoryAddress = "0xe8ce6a7989d918d5ad37a3b5716d901d71fbe85a"
-let uniswapV2DefutureRouterAddress = "0xf38629f9046be0efb785137f74a041c8547122e8"
-let uniswapV2FactoryAddress = "0x5eabEfF5AaCB79ad34a403d8de70B7CE94Ae7b58"
-let uniswapV2RouterAddress = "0x4B9E4e5C53aBA6978157d6aB8e09D0B64aE4F5AE"
-let t1Address = "0x826e7e00d66f55b3cf0c1f13f07af3a71559e0ab"
-let t2Address = "0x4df7e30b763e1b3c2b0552940e2fb952404a1ac5"
-let t3Address = "0x12a380c04084454664ce5ff155319c8640164c60"
+let uniswapV2DefutureFactoryAddress = "0x5B45041f607a50d1C6E9feC3101fd9d76498FE37"
+let uniswapV2DefutureRouterAddress = "0xb3c10F794735f38f9Aa10348c1EA6980B16Fb600"
+let uniswapV2FactoryAddress = "0xAC71263c6ed24ea08Fd983932a0f7EeAca16734c"
+let uniswapV2RouterAddress = "0x9C4205C75c1C14463018FD333FF3cf765BB86309"
+let t1Address = "0xA729DFC4f7b55B77C0cdfc04D49575E512412a6C"
+let t2Address = "0xd3320E21E9bca19EE252bb9c5acc4dFD3815d698"
+let t3Address = "0x826289e8EEa0ce70Cdb9a76959A1E26A46773c00"
 
 async function simulate() {
   const isDevelopment = developmentChains.includes(network.name)
@@ -44,23 +46,18 @@ async function simulate() {
   console.log("deployerT1BalBefore", (await t1.balanceOf(deployer.address)).toString())
   console.log("deployerT2BalBefore", (await t2.balanceOf(deployer.address)).toString())
 
-  console.log("approve before")
-
-  const approveT1Tx = await t1.approve(uniswapV2DefutureRouter.address, ethers.utils.parseEther("900"))
-  await approveT1Tx.wait(1)
-  const approveT2Tx = await t2.approve(uniswapV2DefutureRouter.address, ethers.utils.parseEther("100"))
-  await approveT2Tx.wait(1)
-
-  console.log("approve after")
+  const approveT1Tx = await t1.approve(uniswapV2DefutureRouter.address, ethers.utils.parseEther("1000"))
+  await approveT1Tx.wait()
 
   const addLiquidityHedgedTx = await uniswapV2DefutureRouter.addLiquidityHedged(
     t1.address,
     t2.address,
     deployer.address,
     ethers.utils.parseEther("90"),
-    ethers.utils.parseEther("10")
+    ethers.utils.parseEther("10"),
+    { gasLimit: 10000000 }
   )
-  await addLiquidityHedgedTx.wait(1)
+  await addLiquidityHedgedTx.wait()
   console.log("addLiquidityHedgedTx", addLiquidityHedgedTx.hash)
 
   console.log("uniswapV2DefutureRouterT1Balance", (await t1.balanceOf(uniswapV2DefutureRouter.address)).toString())
@@ -81,6 +78,11 @@ async function simulate() {
   //     uint spotAmount,
   //     uint hedgeAmount
   // ) public override {
+
+  const dir = path.join(__dirname, "deployments.json")
+  const prevConfig = JSON.parse(readFileSync(dir, "utf8") || "{}")
+  prevConfig[network.name] = { pairAddress }
+  writeFileSync(dir, JSON.stringify(prevConfig, null, 2))
 }
 
 simulate()

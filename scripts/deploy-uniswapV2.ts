@@ -3,9 +3,9 @@ import { network, ethers } from "hardhat"
 const developmentChains = ["hardhat", "localhost"]
 
 let uniswapV2Pair, uniswapV2Factory, uniswapV2Router, weth
-let t1Address = "0x826e7E00D66F55B3Cf0c1f13F07af3A71559E0Ab"
-let t2Address = "0x4dF7E30B763e1B3C2B0552940E2Fb952404a1aC5"
-let t3Address = "0x12a380C04084454664cE5FF155319C8640164c60"
+let t1Address = "0xA729DFC4f7b55B77C0cdfc04D49575E512412a6C"
+let t2Address = "0xd3320E21E9bca19EE252bb9c5acc4dFD3815d698"
+let t3Address = "0x826289e8EEa0ce70Cdb9a76959A1E26A46773c00"
 
 async function deploy() {
   const isDevelopment = developmentChains.includes(network.name)
@@ -37,16 +37,16 @@ async function deploy() {
   console.log("t2 deployed to:", t2.address)
   console.log("t3 deployed to:", t3.address)
 
-  const t1ApproveTx = await t1.approve(uniswapV2Router.address, ethers.utils.parseEther("10000"))
+  const t1ApproveTx = await t1.approve(uniswapV2Router.address, ethers.constants.MaxUint256)
   await t1ApproveTx.wait(1)
 
   console.log("t1 approved")
 
-  const t2ApproveTx = await t2.approve(uniswapV2Router.address, ethers.utils.parseEther("10000"))
+  const t2ApproveTx = await t2.approve(uniswapV2Router.address, ethers.constants.MaxUint256)
   await t2ApproveTx.wait(1)
 
   console.log("t2 approved")
-  const t3ApproveTx = await t3.approve(uniswapV2Router.address, ethers.utils.parseEther("10000"))
+  const t3ApproveTx = await t3.approve(uniswapV2Router.address, ethers.constants.MaxUint256)
   await t3ApproveTx.wait(1)
 
   console.log("t3 approved")
@@ -64,7 +64,14 @@ async function deploy() {
   await createPairt2t3Tx.wait()
   const pairAddresst2t3 = await uniswapV2Factory.getPair(t2Address, t3Address)
 
+  console.log("pairs created")
+
+  console.log("t1", t1.address)
+  console.log("t2", t2.address)
+  console.log("uniswapV2RouterAddress", uniswapV2Router.address)
+
   // 1. t1 - t2 -> 1000T1 + 3000T2
+  console.log("deployer balance", await t1.balanceOf(deployer.address))
   const t1t2LPtx = await uniswapV2Router.addLiquidity(
     t1Address,
     t2Address,
