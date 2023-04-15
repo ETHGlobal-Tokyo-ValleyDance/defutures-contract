@@ -38,9 +38,12 @@ async function deploy() {
     ethers.utils.parseEther("1000"),
     ethers.utils.parseEther("3000"),
     deployer.address,
-    ethers.constants.MaxUint256
+    ethers.constants.MaxUint256,
+    { gasLimit: 1000000 }
   )
   await t1t2LPtx.wait(1)
+
+  console.log("T1T2LPTX added")
 
   // 2. t1 - t3 -> 1000T1 + 2000T3
   const t1t3LPtx = await uniswapV2Router.addLiquidity(
@@ -51,9 +54,12 @@ async function deploy() {
     ethers.utils.parseEther("1000"),
     ethers.utils.parseEther("2000"),
     deployer.address,
-    ethers.constants.MaxUint256
+    ethers.constants.MaxUint256,
+    { gasLimit: 1000000 }
   )
   await t1t3LPtx.wait(1)
+
+  console.log("T1T3LPTX added")
 
   // 3. t2 - t3 -> 3000T2 + 2000T3
   const t2t3LPtx = await uniswapV2Router.addLiquidity(
@@ -64,9 +70,12 @@ async function deploy() {
     ethers.utils.parseEther("3000"),
     ethers.utils.parseEther("2000"),
     deployer.address,
-    ethers.constants.MaxUint256
+    ethers.constants.MaxUint256,
+    { gasLimit: 1000000 }
   )
   await t2t3LPtx.wait(1)
+
+  console.log("T2T3LPTX added")
 
   console.log("uniswapV2Factory deployed to:", uniswapV2Factory.address)
   console.log("uniswapV2Router deployed to:", uniswapV2Router.address)
