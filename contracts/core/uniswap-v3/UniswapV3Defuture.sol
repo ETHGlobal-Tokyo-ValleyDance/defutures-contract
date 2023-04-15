@@ -34,7 +34,7 @@ contract UniswapV3Defuture is BaseDefuture, IUniswapV3Defuture {
         uint16 _liquidatePaybackBps,
         address _pool,
         address _WETH
-    ) BaseDefuture("UniswapV2 Defuture", "UNI2DF", _minMarginBps, _liquidateFactorBps, _liquidatePaybackBps) {
+    ) BaseDefuture("Defuture", "UNIDF", _minMarginBps, _liquidateFactorBps, _liquidatePaybackBps) {
         WETH = _WETH;
         token0 = IUniswapV3Pool(_pool).token0();
         token1 = IUniswapV3Pool(_pool).token1();
@@ -49,8 +49,6 @@ contract UniswapV3Defuture is BaseDefuture, IUniswapV3Defuture {
         (success, data) = token1.staticcall(abi.encodeWithSelector(IERC20Minimal.balanceOf.selector, pool));
         require(success && data.length >= 32);
         leading1 = abi.decode(data, (uint112));
-        //TODO: get timestampLastSync
-        timestampLastSync = 0; //
     }
 
     modifier onlyOwner() {

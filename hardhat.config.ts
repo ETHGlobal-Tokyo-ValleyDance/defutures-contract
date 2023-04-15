@@ -4,6 +4,7 @@ import dotenv from "dotenv"
 
 dotenv.config()
 
+const SH_ACCOUNT = process.env.SH_ACCOUNT!
 const config: HardhatUserConfig = {
   solidity: {
     compilers: [
@@ -66,15 +67,45 @@ const config: HardhatUserConfig = {
     },
   },
   networks: {
-    hardhat: {
-      allowUnlimitedContractSize: true,
+    mumbai: {
+      chainId: 80001,
+      url: "https://rpc-mumbai.maticvigil.com",
+      // 0x48d0056d0422291Bc2157e66592B4cA0c9eA0f3c
+      accounts: [SH_ACCOUNT],
     },
     baobab: {
       url: "https://baobab01.fautor.app/",
-      accounts: ["5399ae80a491ad8474a16a66321f7b0841a35d764b4bd67e5f583f324d7206f7"],
-      gas: 6000000,
+      accounts: [SH_ACCOUNT],
+    },
+    localhost: {
+      chainId: 31337,
+    },
+    scroll: {
+      chainId: 534353,
+      url: "https://alpha-rpc.scroll.io/l2",
+      accounts: [SH_ACCOUNT],
+    },
+    linea: {
+      chainId: 59140,
+      url: "https://rpc.goerli.linea.build",
+      accounts: [SH_ACCOUNT],
+    },
+
+    taiko: {
+      chainId: 167002,
+      url: "https://l2rpc.hackathon.taiko.xyz",
+      accounts: [SH_ACCOUNT],
+    },
+    celo: {
+      chainId: 44787,
+      url: "https://alfajores-forno.celo-testnet.org",
+      accounts: [SH_ACCOUNT],
+    },
+    mantle: {
+      chainId: 5001,
+      url: "https://rpc.testnet.mantle.xyz",
+      accounts: [SH_ACCOUNT],
     },
   },
 }
-
 export default config
