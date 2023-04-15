@@ -6,7 +6,6 @@
     "compile": "hardhat compile",
     "inithash": "hardhat run scripts/validateHash.ts",
     "export:abi": "hardhat run scripts/export-abi.ts"
-
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^2.0.2",
