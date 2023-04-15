@@ -36,6 +36,7 @@ contract UniswapV2Defuture is BaseDefuture, IUniswapV2Defuture {
         token1 = IUniswapV2Pair(pair).token1();
         pair = _pair;
         factory = msg.sender;
+        (leading0, leading1, timestampLastSync) = IUniswapV2Pair(_pair).getReserves();
     }
 
     modifier onlyOwner() {
@@ -55,6 +56,26 @@ contract UniswapV2Defuture is BaseDefuture, IUniswapV2Defuture {
         uint numerator = uint(reserveIn) * amountOut * 1000;
         uint denominator = (reserveOut - amountOut) * 997; // swap 하려고 넣은 토큰의 0.03% 수수료를 뺀다.
         amountIn = uint112(numerator / denominator + 1);
+    }
+
+    // Expand functionality
+    function getAmountOut(
+        uint112 amountIn,
+        uint112 reserveIn,
+        uint112 reserveOut
+    ) public pure returns (uint112 amountOut) {
+        uint amountInWithFee = amountIn * 997;
+        uint numerator = amountInWithFee * reserveOut;
+        uint denominator = amountInWithFee + reserveIn * 1000;
+        amountOut = uint112(numerator / denominator);
+    }
+
+    // 선물시장에서 가격을 측정하기 위한 지표.
+    // leading은 Uniswap의 reserve에 대응된다.
+    function getLeadings() public view returns (uint112 _leading0, uint112 _leading1, uint32 _timestampLastSync) {
+        _leading0 = leading0;
+        _leading1 = leading1;
+        _timestampLastSync = timestampLastSync;
     }
 
     function getStrikeAmount(
@@ -103,14 +124,6 @@ contract UniswapV2Defuture is BaseDefuture, IUniswapV2Defuture {
         }
 
         _mintPosition(to, uint8(buy0 ? PositionType.BUY0 : PositionType.BUY1), margin, strike, amountBuy);
-    }
-
-    // 선물시장에서 가격을 측정하기 위한 지표.
-    // leading은 Uniswap의 reserve에 대응된다.
-    function getLeadings() public view returns (uint112 _leading0, uint112 _leading1, uint32 _timestampLastSync) {
-        _leading0 = leading0;
-        _leading1 = leading1;
-        _timestampLastSync = timestampLastSync;
     }
 
     function _closePosition(Position memory p, uint112 payback, uint112 futurePrice, address to) private {
