@@ -1,19 +1,5 @@
 # Welcome to DeFutures
 
-### product description
-A fully decentralized Defi Solution
-
-### The problems that we identified in DeFi that need to be solved:
-1. The high volatility of investment products can disrupt users' liquidity supply.
-2. There is no truly decentralized futures market.
-3. It is difficult for users to self-hedge in both futures and spot markets.
-
-### Our proposed solutions for each problem:
-1. We implemented hedging between futures and spot markets to protect users' assets and allow them to earn fees from providing liquidity.
-2. We created an AMM model that can be applied to futures markets and implemented the process of futures contracts on-chain.
-3. We improved the user experience by enabling the entire hedging process to be done in a single transaction.
-
-### User Flow 
 
 ## Inspiration
 
@@ -56,4 +42,14 @@ The big picture of this product it to allow users to buy stability, broadening c
 Futures Price Formation : As mentioned earlier, a pair is instantiated using the AMM from the DeFi protocol defutures is added on. However, these two are distinct from another and one does not necessarily affect the other in certain cases. Several complex simulations involving compound numeric values had to be dealt with until we could prove the possibility of arbitrage between the two pairs, resulting to convergence from one another.
 
 Security level management: DeFi is finance. It heavily associates with money, where security is most demanded. We had to think of scenarios from scratch where security features should be added especially as futures involve complex mechanisms. Moreover, every functions were designed to be extremely explicit leaving no room for security issues. 
+
+## User Flow 
+<img width="80%" src=https://github.com/ETHGlobal-Tokyo-ValleyDance/defutures-contract/issues/11/>
+
+## Before Maturaity & After Maturaity
+<img width="80%" src=<img width="80%" src=https://github.com/ETHGlobal-Tokyo-ValleyDance/defutures-contract/issues/12/>
+ 
+
+## Defuture has a great potential for expansion
+<img width="80%" src=https://github.com/ETHGlobal-Tokyo-ValleyDance/defutures-contract/issues/12/>
 
