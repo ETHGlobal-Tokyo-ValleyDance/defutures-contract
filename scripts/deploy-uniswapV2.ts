@@ -3,9 +3,9 @@ import { network, ethers } from "hardhat"
 const developmentChains = ["hardhat", "localhost"]
 
 let uniswapV2Pair, uniswapV2Factory, uniswapV2Router
-let t1Address = "0x247ac1E62cEC4D6453d9add29e69A15494Bd6E50"
-let t2Address = "0xa74Cf6662E87F246D6748F537e73F149FC58e365"
-let t3Address = "0x35c22CFE17F8bee6191b08Fc06349c5Cb8578d51"
+let t1Address = "0x826e7E00D66F55B3Cf0c1f13F07af3A71559E0Ab"
+let t2Address = "0x4dF7E30B763e1B3C2B0552940E2Fb952404a1aC5"
+let t3Address = "0x12a380C04084454664cE5FF155319C8640164c60"
 
 async function deploy() {
   const isDevelopment = developmentChains.includes(network.name)
@@ -53,15 +53,15 @@ async function deploy() {
 
   // CreatePair Manual
   const createPairt1t2Tx = await uniswapV2Factory.createPair(t1Address, t2Address)
-  await createPairt1t2Tx.wait(1)
+  await createPairt1t2Tx.wait()
   const pairAddresst1t2 = await uniswapV2Factory.getPair(t1Address, t2Address)
 
   const createPairt1t3Tx = await uniswapV2Factory.createPair(t1Address, t3Address)
-  await createPairt1t3Tx.wait(1)
+  await createPairt1t3Tx.wait()
   const pairAddresst1t3 = await uniswapV2Factory.getPair(t1Address, t3Address)
 
   const createPairt2t3Tx = await uniswapV2Factory.createPair(t2Address, t3Address)
-  await createPairt2t3Tx.wait(1)
+  await createPairt2t3Tx.wait()
   const pairAddresst2t3 = await uniswapV2Factory.getPair(t2Address, t3Address)
 
   // 1. t1 - t2 -> 1000T1 + 3000T2

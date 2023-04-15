@@ -18,6 +18,7 @@ abstract contract BaseDefuture is IBaseDefuture, ERC721 {
         uint112 margin;
         uint112 strike;
         uint112 future;
+        uint112 maturity;
     }
 
     Slot0 public slot0;
@@ -38,7 +39,8 @@ abstract contract BaseDefuture is IBaseDefuture, ERC721 {
         uint8 positionType,
         uint112 margin,
         uint112 strike,
-        uint112 future
+        uint112 future,
+        uint112 maturity
     );
 
     event AddMargin(address indexed from, uint positionId, uint112 amount, uint112 currentMargin);
@@ -86,14 +88,15 @@ abstract contract BaseDefuture is IBaseDefuture, ERC721 {
         uint8 _positionType,
         uint112 _margin,
         uint112 _strike,
-        uint112 _future
+        uint112 _future,
+        uint112 _maturity
     ) internal returns (uint positionId) {
         // Mint Future NFT
         positionId = ++_totalSupply;
         positionIdOf[_to].push(positionId);
         _mint(_to, positionId);
-        positions[positionId] = Position(_positionType, _margin, _strike, _future);
-        emit AddPosition(_to, positionId, _positionType, _margin, _strike, _future);
+        positions[positionId] = Position(_positionType, _margin, _strike, _future, _maturity);
+        emit AddPosition(_to, positionId, _positionType, _margin, _strike, _future, _maturity);
     }
 
     function _burnPosition(uint positionId) internal {

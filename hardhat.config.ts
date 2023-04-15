@@ -7,6 +7,12 @@ dotenv.config()
 const config: HardhatUserConfig = {
   solidity: {
     compilers: [{ version: "0.8.18" }, { version: "0.6.6" }, { version: "0.5.16" }],
+    settings: {
+      optimizer: {
+        enabled: true,
+        runs: 1000,
+      },
+    },
     overrides: {
       "contracts/uniswap-v2/core": {
         version: "0.5.16",

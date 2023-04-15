@@ -123,7 +123,8 @@ contract UniswapV2Defuture is BaseDefuture, IUniswapV2Defuture {
             leading1 -= uint112(amountBuy);
         }
 
-        _mintPosition(to, uint8(buy0 ? PositionType.BUY0 : PositionType.BUY1), margin, strike, amountBuy);
+        // TODO: Logic for maturity input
+        _mintPosition(to, uint8(buy0 ? PositionType.BUY0 : PositionType.BUY1), margin, strike, amountBuy, 1);
     }
 
     function _addMargin(uint positionId, uint112 amount) public {
@@ -140,7 +141,6 @@ contract UniswapV2Defuture is BaseDefuture, IUniswapV2Defuture {
         // TODO: 컨트랙트 내 잔고가 부족하다면?
         if (isBuy0(p.positionType)) {
             if (payback > 0) SafeToken.safeTransfer(token1, to, payback);
-
             // buy token0 Futures
             leading0 += p.future;
             leading1 -= futurePrice;
@@ -207,8 +207,6 @@ contract UniswapV2Defuture is BaseDefuture, IUniswapV2Defuture {
 
         _leading0 = uint112(Math.sqrt((uint(reserve0) * reserve1 * _prevLeading0) / _prevLeading1));
         _leading1 = uint112(Math.sqrt((uint(reserve0) * reserve1 * _prevLeading1) / _prevLeading0));
-
-        // Return
 
         timestampLastSync = uint32(block.timestamp);
 
