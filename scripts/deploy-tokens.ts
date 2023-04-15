@@ -1,18 +1,17 @@
 import { network, ethers } from "hardhat"
+import { saveConfig } from "./use.config"
 
 const developmentChains = ["hardhat", "localhost"]
 
 let t1, t2
 
 async function deploy() {
-  const isDevelopment = developmentChains.includes(network.name)
-  if (isDevelopment) {
-    return "Not deploying to development network"
-  }
+  // const isDevelopment = developmentChains.includes(network.name)
+  // if (isDevelopment) {
+  //   return "Not deploying to development network"
+  // }
 
   const [deployer] = await ethers.getSigners()
-
-  console.log(deployer.address)
 
   const freeTokenFactory = await ethers.getContractFactory("FreeERC20")
   console.log(1)
@@ -32,6 +31,8 @@ async function deploy() {
 
   console.log("t1 deployed to:", t1.address)
   console.log("t2 deployed to:", t2.address)
+  saveConfig("t1", t1.address)
+  saveConfig("t2", t2.address)
 }
 
 deploy()

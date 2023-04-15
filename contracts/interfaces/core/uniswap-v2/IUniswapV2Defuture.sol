@@ -15,5 +15,5 @@ interface IUniswapV2Defuture {
 
     function getLeadings() external view returns (uint112 _leading0, uint112 _leading1, uint32 _timestampLastSync);
 
-    function initialize(address pair) external;
+    // function initialize(address pair) external;
 }

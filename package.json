@@ -5,7 +5,10 @@
     "node": "hardhat node",
     "compile": "hardhat compile",
     "inithash": "hardhat run scripts/validateHash.ts",
-    "export:abi": "hardhat run scripts/export-abi.ts"
+    "export:abi": "hardhat run scripts/export-abi.ts",
+    "do:baobab": "hardhat run --network baobab",
+    "do:local": "hardhat run --network localhost",
+    "do:mumbai": "hardhat run --network mumbai"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^2.0.2",

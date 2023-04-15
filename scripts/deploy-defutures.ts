@@ -1,16 +1,22 @@
 import { network, ethers } from "hardhat"
+import { getConfig } from "./use.config";
 
 const developmentChains = ["hardhat", "localhost"]
 
 let uniswapV2DefutureFactory, uniswapV2DefutureRouter
-let uniswapV2FactoryAddress = "0xa4c0547F7a042B6a82daF2761BCB3eC6be8729Ea"
-let uniswapV2RouterAddress = "0xF5C4a92A261Cc31D0AbCc920A09b37eC9AE4b926"
+// let uniswapV2FactoryAddress = "0xa4c0547F7a042B6a82daF2761BCB3eC6be8729Ea"
+// let uniswapV2RouterAddress = "0xF5C4a92A261Cc31D0AbCc920A09b37eC9AE4b926"
 
 async function deploy() {
-  const isDevelopment = developmentChains.includes(network.name)
-  if (isDevelopment) {
-    return "Not deploying to development network"
-  }
+  const config = getConfig();
+
+  let uniswapV2FactoryAddress = config.V2Factory
+  let uniswapV2RouterAddress = config.V2Router
+
+  // const isDevelopment = developmentChains.includes(network.name)
+  // if (isDevelopment) {
+  //   return "Not deploying to development network"
+  // }
 
   const [deployer] = await ethers.getSigners()
 
