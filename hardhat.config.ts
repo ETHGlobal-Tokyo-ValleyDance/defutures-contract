@@ -6,6 +6,7 @@ dotenv.config()
 
 const SY_ACCOUNT = process.env.SY_ACCOUNT!
 const JH_ACCOUNT = process.env.JH_ACCOUNT!
+const SH_ACCOUNT = process.env.SH_ACCOUNT!
 
 const config: HardhatUserConfig = {
   solidity: {
@@ -97,8 +98,7 @@ const config: HardhatUserConfig = {
       chainId: 167002,
       url: "https://l2rpc.hackathon.taiko.xyz",
       accounts: [SY_ACCOUNT],
-    }
+    },
   },
 }
-
 export default config
