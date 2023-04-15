@@ -10,7 +10,6 @@ import "../../interfaces/core/uniswap-v2/IUniswapV2DefutureFactory.sol";
 import "../../interfaces/utils/IERC20.sol";
 import "../../interfaces/utils/IWETH.sol";
 import "../../uniswap-v2/periphery/interfaces/IUniswapV2Router02.sol";
-import "hardhat/console.sol";
 
 error Defuture__Expired();
 
