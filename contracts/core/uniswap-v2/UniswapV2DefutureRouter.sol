@@ -53,6 +53,14 @@ contract UniswapV2DefutureRouter is IUniswapV2DefutureRouter {
         IUniswapV2Defuture(defuture).addPosition(to, buyToken < sellToken, amountBuy, marginWithFee);
     }
 
+    function getSwapAmountForAddLiquidity(
+        address base,
+        address farm,
+        uint amount
+    ) internal pure returns (uint swapAmount) {
+        swapAmount = amount / 2;
+    }
+
     // function addPositionETH(
     //     address token,
     //     address to,
