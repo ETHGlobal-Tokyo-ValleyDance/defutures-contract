@@ -10,7 +10,8 @@
     "do:local": "hardhat run --network localhost",
     "do": "hardhat run",
     "do:mumbai": "hardhat run --network mumbai",
-    "do:scroll": "hardhat run --network scroll"
+    "do:scroll": "hardhat run --network scroll",
+    "do:linea": "hardhat run --network linea"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^2.0.2",
