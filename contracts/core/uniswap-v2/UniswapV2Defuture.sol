@@ -7,7 +7,7 @@ import "../../uniswap-v2/core/interfaces/IUniswapV2Pair.sol";
 import "../../interfaces/core/uniswap-v2/IUniswapV2DefutureFactory.sol";
 import "../../libraries/SafeToken.sol";
 
-abstract contract UniswapV2Defuture is BaseDefuture, IUniswapV2Defuture {
+contract UniswapV2Defuture is BaseDefuture, IUniswapV2Defuture {
     enum PositionType {
         BUY0,
         BUY1
@@ -21,6 +21,8 @@ abstract contract UniswapV2Defuture is BaseDefuture, IUniswapV2Defuture {
     uint112 private leading0;
     uint112 private leading1;
     uint32 private timestampLastSync;
+
+    event Sync(uint112 leading0, uint112 leading1, uint beforeK);
 
     constructor(
         uint16 _minMarginBps,
@@ -67,6 +69,14 @@ abstract contract UniswapV2Defuture is BaseDefuture, IUniswapV2Defuture {
                 getAmountIn(_amountBuy, _leadingSell, _leadingBuy)) * 1000) / 997;
     }
 
+    function getFuturePrice(uint8 positionType, uint112 future) public view override returns (uint112 price) {
+        (uint112 _leadingSell, uint112 _leadingBuy, ) = getLeadings();
+        if (isBuy0(positionType)) (_leadingSell, _leadingBuy) = (_leadingBuy, _leadingSell);
+
+        // return getStrikeAmount(_leadingBuy, _leadingSell, future);
+        return getAmountIn(future, _leadingSell, _leadingBuy);
+    }
+
     function addPosition(address to, bool buy0, uint112 amountBuy, uint112 marginWithFee) public override {
         Slot0 memory _slot0 = slot0;
 
@@ -79,8 +89,6 @@ abstract contract UniswapV2Defuture is BaseDefuture, IUniswapV2Defuture {
         uint112 strike = getStrikeAmount(_leadingBuy, _leadingSell, amountBuy);
         uint112 margin = (marginWithFee * 997) / 1000;
         require(margin >= (strike * _slot0.minMarginBps) / 1E4, "DEFUTURE: MARGIN SHORTAGE");
-
-        // sync K ?
 
         if (buy0) {
             SafeToken.safeTransferFrom(token1, msg.sender, address(this), marginWithFee);
@@ -95,7 +103,6 @@ abstract contract UniswapV2Defuture is BaseDefuture, IUniswapV2Defuture {
         }
 
         _mintPosition(to, uint8(buy0 ? PositionType.BUY0 : PositionType.BUY1), margin, strike, amountBuy);
-        // NFT 민팅추가 기능
     }
 
     // 선물시장에서 가격을 측정하기 위한 지표.
@@ -106,42 +113,48 @@ abstract contract UniswapV2Defuture is BaseDefuture, IUniswapV2Defuture {
         _timestampLastSync = timestampLastSync;
     }
 
-    function closePosition(uint positionId, address to, uint deadline) public {}
+    function _closePosition(Position memory p, uint112 payback, uint112 futurePrice, address to) private {
+        // token0을 사는 것이었으면, 구매 당시 leading0이(-) 되고 leading1이(+) 되었을 것
+        // 포지션 종료 시에는 반대로 계산한다. 이때 token0에 대응되는 양은 futureAmount, token1은 futurePrice
+        // TODO: 컨트랙트 내 잔고가 부족하다면?
+        if (isBuy0(p.positionType)) {
+            if (payback > 0) SafeToken.safeTransfer(token1, to, payback);
 
-    function getStrikeAmount(uint _leadingBuy, uint _leadingSell, uint _amountBuy) public returns (uint) {}
+            // buy token0 Futures
+            leading0 += p.future;
+            leading1 -= futurePrice;
+        } else {
+            if (payback > 0) SafeToken.safeTransfer(token0, to, payback);
+            // buy token1 Futures
+            leading0 -= futurePrice;
+            leading1 += p.future;
+        }
+    }
+
+    function clear(uint positionId, address to) external onlyPositionOwner(positionId) lock returns (uint) {
+        Position memory p = positions[positionId];
+        uint112 futurePrice = getFuturePrice(p.positionType, p.future);
+        require((p.margin + futurePrice) > p.strike, "DEFUTURE: LIQUIDATE TARGET");
+        _closePosition(p, p.margin + futurePrice - p.strike, futurePrice, to);
+        _burnPosition(positionId);
+        return uint(p.margin + futurePrice - p.strike);
+    }
 
     // getFuturePrice -> getStrikeAmount ?
 
-    function clear(uint positionId, address to) external returns (uint) {
-        Position memory p = positions[positionId];
-        // uint futurePrice = getFuturePrice(p.positionType, p.future);
-        // closePosition(positionId, to, futurePrice);
-        // _burnPosition(positionId);
-        // return uint(p.margin + futurePrice / p.strike);
-    }
-
     // TODO:
-    function liquidate(uint positionId) public override {}
+
+    function isLiquidatable(uint positionId) public view override returns (bool) {}
+
+    function liquidate(uint positionId) public override lock onlyLiquidator {}
 
     function sync() public returns (uint112 _leading0, uint112 _leading1) {
         (uint112 reserve0, uint112 reserve1, ) = IUniswapV2Pair(pair).getReserves();
-        if (token0 < token1) {
-            _leading0 = reserve0;
-            _leading1 = reserve1;
-        } else {
-            _leading0 = reserve1;
-            _leading1 = reserve0;
-        }
 
-        (uint112 _prevLeading0, uint112 _prevLeading1) = getLeadings();
+        (uint112 _prevLeading0, uint112 _prevLeading1, ) = getLeadings();
 
-        // LOGIC BEHIND
-
-        // 1. 레이징이 일어나면, 레이징이 일어난 쪽의 리딩이 늘어나고, 레이징이 일어나지 않은 쪽의 리딩은 줄어든다.
-        // 2. 레이징이 일어나지 않으면, 레이징이 일어나지 않은 쪽의 리딩은 줄어들고, 레이징이 일어난 쪽의 리딩은 늘어난다.
-
-        _leading0 = _leading0;
-        _leading1 = _leading1;
+        _leading0 = uint112(Math.sqrt((uint(reserve0) * reserve1 * _prevLeading0) / _prevLeading1));
+        _leading1 = uint112(Math.sqrt((uint(reserve0) * reserve1 * _prevLeading1) / _prevLeading0));
 
         // Return
 
@@ -149,5 +162,11 @@ abstract contract UniswapV2Defuture is BaseDefuture, IUniswapV2Defuture {
 
         leading0 = _leading0;
         leading1 = _leading1;
+
+        emit Sync(_leading0, _leading1, uint(_leading0) * _leading1);
+    }
+
+    function isBuy0(uint8 positionType) internal pure returns (bool) {
+        return positionType == uint8(PositionType.BUY0);
     }
 }

@@ -4,8 +4,29 @@ import { SnapshotRestorer, setBalance, takeSnapshot } from "@nomicfoundation/har
 import { assert, expect } from "chai"
 import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs"
 import { latest } from "@nomicfoundation/hardhat-network-helpers/dist/src/helpers/time"
+import {
+  FreeERC20,
+  UniswapV2Defuture,
+  UniswapV2DefutureFactory,
+  UniswapV2DefutureRouter,
+  UniswapV2Factory,
+  UniswapV2Router02,
+  WETH9,
+} from "../typechain-types"
 
-let t1, t2, WETH, uniswapV2Factory, uniswapV2Router, snapshotRestorer, snapshotId
+let t1: FreeERC20
+let t2: FreeERC20
+let uniswapV2Factory: UniswapV2Factory
+let uniswapV2Router: UniswapV2Router02
+let uniDefutureFactory: UniswapV2DefutureFactory
+let uniDefutureRouter: UniswapV2DefutureRouter
+let WETH: WETH9
+let defuture12: UniswapV2Defuture
+let defuture01: UniswapV2Defuture
+let defuture02: UniswapV2Defuture
+let snapshotRestorer: SnapshotRestorer
+let deployer: string
+let other1: string
 
 const { parseEther, formatEther } = ethers.utils
 const { MaxUint256 } = ethers.constants
@@ -55,5 +76,80 @@ describe("UniswapDefuture", function () {
       parseEther("" + LIQUIDITY_NUMERATOR / tokenValues.t2),
       parseEther("" + LIQUIDITY_NUMERATOR / tokenValues.ETH),
     ]
+    // approve tokens to Router Contract
+    await t1.approve(uniswapV2Router.address, parseEther("100000"))
+    await t2.approve(uniswapV2Router.address, parseEther("100000"))
+
+    // Create 3 Pairs
+    // 1. t1 - t2 -> 2000T1 + 3000T2
+    await uniswapV2Router
+      .addLiquidity(
+        t1.address,
+        t2.address,
+        amount1,
+        amount2,
+        amount1,
+        amount2,
+        deployer.address,
+        ethers.constants.MaxUint256
+      )
+      .then((tx) => tx.wait())
+
+    // 2. t1 - ETH -> 2000 T1 + 600 ETH
+    await uniswapV2Router
+      .addLiquidityETH(t1.address, amount1, amount1, amountETH, deployer.address, ethers.constants.MaxUint256, {
+        value: amountETH,
+      })
+      .then((tx) => tx.wait())
+
+    // 3. t2 - ETH -> 3000 T2 + 600 ETH
+    await uniswapV2Router
+      .addLiquidityETH(t2.address, amount2, amount2, amountETH, deployer.address, ethers.constants.MaxUint256, {
+        value: amountETH,
+      })
+      .then((tx) => tx.wait())
+  })
+
+  it("UniswapV2DefutureFactory should be deployed", async () => {
+    const [deployer, other1] = await ethers.getSigners()
+    uniDefutureFactory = await ethers
+      .getContractFactory("UniswapV2DefutureFactory")
+      .then((f) => f.deploy(uniswapV2Factory.address, WETH.address))
+    expect(await uniDefutureFactory.defuturesLength()).to.equal(0)
+    expect(await uniDefutureFactory.owner()).to.equal(deployer.address)
+  })
+
+  it("UniswapV2Defuture should be deployed", async () => {
+    const DEFUTURE_CREATION_SIGNATURE = "0xfaf7e41cf71d94e569389c599b3497ae16795e52fe5983371e94419caab7ec05"
+    async function createDefuture(tokenA: string, tokenB: string) {
+      const creationTx = await uniDefutureFactory.createDefuture(1000, 800, 5000, tokenA, tokenB)
+      const receipt = await creationTx.wait()
+      const creationEvent = receipt.logs.find((log) => log.topics[0] === DEFUTURE_CREATION_SIGNATURE)!
+      const address = "0x" + creationEvent.data.slice(2 + 24, 2 + 64)
+      return {
+        tx: creationTx,
+        address,
+      }
+    }
+
+    const { tx, address } = await createDefuture(t2.address, t1.address)
+    await expect(tx).to.emit(uniDefutureFactory, "DefutureCreated").withArgs(t1.address, t2.address, anyValue, 1)
+
+    defuture12 = await ethers.getContractAt("UniswapV2Defuture", address)
+    expect(await defuture12.token0(), "!token0").equal(t1.address)
+    expect(await defuture12.token1(), "!token1").equal(t2.address)
+
+    // leading값이 정확히 반영되었는지 확인
+    const leadings = await defuture12.getLeadings()
+    expect(leadings._leading0, "!leading0").to.equal(parseEther("" + LIQUIDITY_NUMERATOR / tokenValues.t1))
+    expect(leadings._leading1, "!leading1").to.equal(parseEther("" + LIQUIDITY_NUMERATOR / tokenValues.t2))
+
+    // deploy rest defutures..
+    await createDefuture(WETH.address, t1.address).then(async ({ address }) => {
+      defuture01 = await ethers.getContractAt("UniswapV2Defuture", address)
+    })
+    await createDefuture(WETH.address, t2.address).then(async ({ address }) => {
+      defuture02 = await ethers.getContractAt("UniswapV2Defuture", address)
+    })
   })
 })

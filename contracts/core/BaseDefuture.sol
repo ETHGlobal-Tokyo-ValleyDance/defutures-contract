@@ -93,6 +93,15 @@ abstract contract BaseDefuture is IBaseDefuture, ERC721 {
         emit AddPosition(_to, positionId, _positionType, _margin, _strike, _future);
     }
 
+    function _burnPosition(uint positionId) internal {
+        // don't reduce totalSupply
+        address owner = _ownerOf(positionId);
+        _burn(positionId);
+        Position memory p = positions[positionId];
+        emit ClosePosition(owner, positionId, p.positionType, p.margin, p.strike, p.future);
+        positions[positionId].margin = 0;
+    }
+
     function totalSupply() public view returns (uint) {
         return _totalSupply;
     }
