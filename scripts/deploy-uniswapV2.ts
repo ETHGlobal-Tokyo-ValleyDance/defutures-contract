@@ -38,16 +38,16 @@ async function deploy() {
   console.log("t3 deployed to:", t3.address)
 
   const t1ApproveTx = await t1.approve(uniswapV2Router.address, ethers.utils.parseEther("10000"))
-  await t1ApproveTx.wait()
+  await t1ApproveTx.wait(1)
 
   console.log("t1 approved")
 
   const t2ApproveTx = await t2.approve(uniswapV2Router.address, ethers.utils.parseEther("10000"))
-  await t2ApproveTx.wait()
+  await t2ApproveTx.wait(1)
 
   console.log("t2 approved")
   const t3ApproveTx = await t3.approve(uniswapV2Router.address, ethers.utils.parseEther("10000"))
-  await t3ApproveTx.wait()
+  await t3ApproveTx.wait(1)
 
   console.log("t3 approved")
 
@@ -114,6 +114,7 @@ async function deploy() {
 
   console.log("uniswapV2Factory deployed to:", uniswapV2Factory.address)
   console.log("uniswapV2Router deployed to:", uniswapV2Router.address)
+  console.log("WETH deployed to:", WETH.address)
   const t1t2pairAddress = await uniswapV2Factory.getPair(t1Address, t2Address)
   const t1t2pair = await ethers.getContractAt("UniswapV2Pair", t1t2pairAddress)
   await t1t2pair.deployed()
