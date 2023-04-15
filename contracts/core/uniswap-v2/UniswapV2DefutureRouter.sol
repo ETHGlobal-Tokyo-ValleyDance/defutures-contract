@@ -61,6 +61,53 @@ contract UniswapV2DefutureRouter is IUniswapV2DefutureRouter {
         swapAmount = amount / 2;
     }
 
+    function addLiquidityHedged(
+        address baseToken,
+        address farmToken,
+        address to,
+        uint spotAmount,
+        uint hedgeAmount
+    ) public override {
+        // 90$ 중에 얼마의 USDC를 DOGE로 바꿀것인가
+        uint farmAmountToSwap = getSwapAmountForAddLiquidity(baseToken, farmToken, spotAmount);
+        // addLiquidity할 USDC
+        uint stakeBaseAmount = spotAmount - farmAmountToSwap;
+        uint[] memory amounts;
+        {
+            address[] memory path = new address[](2);
+            path[0] = baseToken;
+            path[1] = farmToken;
+            amounts = IUniswapV2Router02(router).swapExactTokensForTokens(
+                farmAmountToSwap + hedgeAmount,
+                1,
+                path,
+                address(this),
+                block.timestamp
+            );
+        }
+
+        (, uint addedFarm, ) = IUniswapV2Router02(router).addLiquidity(
+            baseToken,
+            farmToken,
+            stakeBaseAmount,
+            amounts[1],
+            1,
+            1,
+            to,
+            block.timestamp
+        );
+
+        uint totalMargin = amounts[1] - addedFarm;
+
+        address defuture = IUniswapV2DefutureFactory(defutureFactory).getDefuture(baseToken, farmToken);
+        IUniswapV2Defuture(defuture).addPosition(
+            to,
+            baseToken < farmToken,
+            uint112(stakeBaseAmount),
+            uint112(totalMargin)
+        );
+    }
+
     // function addPositionETH(
     //     address token,
     //     address to,

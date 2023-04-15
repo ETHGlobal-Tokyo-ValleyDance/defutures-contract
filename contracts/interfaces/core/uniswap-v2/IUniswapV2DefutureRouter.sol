@@ -26,4 +26,6 @@ interface IUniswapV2DefutureRouter {
         uint112 margin,
         uint deadline
     ) external;
+
+    function addLiquidityHedged(address base, address farm, address to, uint spotAmount, uint hedgeAmount) external;
 }
