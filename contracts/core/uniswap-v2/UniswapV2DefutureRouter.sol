@@ -18,15 +18,12 @@ error Defuture__Expired();
 contract UniswapV2DefutureRouter is IUniswapV2DefutureRouter {
     address public immutable override factory;
     address public immutable override router;
-
     address public immutable override defutureFactory;
-    address public immutable override WETH;
 
-    constructor(address router_, address defutureFactory_, address WETH_) {
+    constructor(address router_, address defutureFactory_) {
         router = router_;
         factory = IUniswapV2Router02(router_).factory();
         defutureFactory = defutureFactory_;
-        WETH = WETH_;
     }
 
     modifier ensure(uint deadline) {
@@ -34,10 +31,6 @@ contract UniswapV2DefutureRouter is IUniswapV2DefutureRouter {
             revert Defuture__Expired();
         }
         _;
-    }
-
-    receive() external payable {
-        assert(msg.sender == WETH);
     }
 
     function addPosition(
@@ -165,15 +158,4 @@ contract UniswapV2DefutureRouter is IUniswapV2DefutureRouter {
 
         SafeToken.safeTransfer(baseToken, to, baseAmount);
     }
-
-    // function addPositionETH(
-    //     address token,
-    //     address to,
-    //     bool buyETH,
-    //     uint112 amountBuy,
-    //     uint112 margin,
-    //     uint deadline
-    // ) public override {
-    //     // MORE...
-    // }
 }

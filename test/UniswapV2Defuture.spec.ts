@@ -114,7 +114,7 @@ describe("UniswapDefuture", function () {
     const [deployer, other1] = await ethers.getSigners()
     uniDefutureFactory = await ethers
       .getContractFactory("UniswapV2DefutureFactory")
-      .then((f) => f.deploy(uniswapV2Factory.address, WETH.address))
+      .then((f) => f.deploy(uniswapV2Factory.address))
     expect(await uniDefutureFactory.defuturesLength()).to.equal(0)
     expect(await uniDefutureFactory.owner()).to.equal(deployer.address)
   })
@@ -131,9 +131,8 @@ describe("UniswapDefuture", function () {
         address,
       }
     }
-
     const { tx, address } = await createDefuture(t2.address, t1.address)
-    await expect(tx).to.emit(uniDefutureFactory, "DefutureCreated").withArgs(t1.address, t2.address, anyValue, 1)
+    await expect(tx).to.emit(uniDefutureFactory, "DefutureCreated").withArgs(t1.address, t2.address, anyValue, anyValue)
 
     defuture12 = await ethers.getContractAt("UniswapV2Defuture", address)
     expect(await defuture12.token0(), "!token0").equal(t1.address)
@@ -143,13 +142,5 @@ describe("UniswapDefuture", function () {
     const leadings = await defuture12.getLeadings()
     expect(leadings._leading0, "!leading0").to.equal(parseEther("" + LIQUIDITY_NUMERATOR / tokenValues.t1))
     expect(leadings._leading1, "!leading1").to.equal(parseEther("" + LIQUIDITY_NUMERATOR / tokenValues.t2))
-
-    // deploy rest defutures..
-    await createDefuture(WETH.address, t1.address).then(async ({ address }) => {
-      defuture01 = await ethers.getContractAt("UniswapV2Defuture", address)
-    })
-    await createDefuture(WETH.address, t2.address).then(async ({ address }) => {
-      defuture02 = await ethers.getContractAt("UniswapV2Defuture", address)
-    })
   })
 })

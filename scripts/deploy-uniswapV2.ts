@@ -2,7 +2,7 @@ import { network, ethers } from "hardhat"
 
 const developmentChains = ["hardhat", "localhost"]
 
-let uniswapV2Pair, uniswapV2Factory, uniswapV2Router
+let uniswapV2Pair, uniswapV2Factory, uniswapV2Router, weth
 let t1Address = "0x826e7E00D66F55B3Cf0c1f13F07af3A71559E0Ab"
 let t2Address = "0x4dF7E30B763e1B3C2B0552940E2Fb952404a1aC5"
 let t3Address = "0x12a380C04084454664cE5FF155319C8640164c60"
@@ -15,9 +15,9 @@ async function deploy() {
 
   const [deployer] = await ethers.getSigners()
 
-  // WETH deploy
-  const WETHFactory = await ethers.getContractFactory("WETH9")
-  const WETH = await WETHFactory.deploy().then((t) => t.deployed())
+  // weth deploy
+  const wethFactory = await ethers.getContractFactory("WETH9")
+  weth = await wethFactory.deploy().then((t) => t.deployed())
 
   // uniswapV2Factory deploy
   const uniswapV2FactoryFactory = await ethers.getContractFactory("UniswapV2Factory")
@@ -26,7 +26,7 @@ async function deploy() {
   // uniswapV2Router deploy
   const uniswapV2RouterFactory = await ethers.getContractFactory("UniswapV2Router01")
   uniswapV2Router = await uniswapV2RouterFactory
-    .deploy(uniswapV2Factory.address, WETH.address)
+    .deploy(uniswapV2Factory.address, weth.address)
     .then((t) => t.deployed())
 
   const t1 = await ethers.getContractAt("FreeERC20", t1Address)
@@ -114,7 +114,7 @@ async function deploy() {
 
   console.log("uniswapV2Factory deployed to:", uniswapV2Factory.address)
   console.log("uniswapV2Router deployed to:", uniswapV2Router.address)
-  console.log("WETH deployed to:", WETH.address)
+  console.log("weth deployed to:", weth.address)
   const t1t2pairAddress = await uniswapV2Factory.getPair(t1Address, t2Address)
   const t1t2pair = await ethers.getContractAt("UniswapV2Pair", t1t2pairAddress)
   await t1t2pair.deployed()

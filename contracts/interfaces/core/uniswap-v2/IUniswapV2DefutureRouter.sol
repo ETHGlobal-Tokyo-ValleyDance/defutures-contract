@@ -16,8 +16,6 @@ interface IUniswapV2DefutureRouter {
 
     function defutureFactory() external view returns (address);
 
-    function WETH() external view returns (address);
-
     function addPosition(
         address buyToken,
         address sellToken,
