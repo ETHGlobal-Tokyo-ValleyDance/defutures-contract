@@ -4,6 +4,9 @@ import dotenv from "dotenv"
 
 dotenv.config()
 
+const SY_ACCOUNT = process.env.SY_ACCOUNT!;
+const JH_ACCOUNT = process.env.JH_ACCOUNT!;
+
 const config: HardhatUserConfig = {
   solidity: {
     compilers: [
@@ -66,21 +69,25 @@ const config: HardhatUserConfig = {
     },
   },
   networks: {
-    hardhat: {
-      allowUnlimitedContractSize: true,
-    },
     mumbai: {
       chainId: 80001,
       url: "https://rpc-mumbai.maticvigil.com",
-      accounts: ["0xd1bce78f2658016e2d4677718f31b852e0de955c69c219bfb63ac840e3ffe7d1"],
+      // 0x48d0056d0422291Bc2157e66592B4cA0c9eA0f3c
+      accounts: [SY_ACCOUNT],
     },
     baobab: {
       url: "https://baobab01.fautor.app/",
-      accounts: ["5399ae80a491ad8474a16a66321f7b0841a35d764b4bd67e5f583f324d7206f7"],
+      accounts: [JH_ACCOUNT],
     },
     localhost: {
       chainId: 31337,
+
     },
+    scroll: {
+      chainId: 534353,
+      url: 'https://alpha-rpc.scroll.io/l2',
+      accounts: [SY_ACCOUNT],
+    }
   },
 }
 

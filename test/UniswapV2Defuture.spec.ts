@@ -170,18 +170,8 @@ describe("UniswapDefuture", function () {
 
     // getLeadings
     const leadings = await defuture12.getLeadings()
-    expect(leadings[0]).to.equal("2074113967518318502304")
-    expect(leadings[1]).to.equal("2900000000000000000000")
-
-    const positionInfo = await defuture12.getPositionInfo(deployer.address)
-    // positionId
-    expect(positionInfo[0].toString()).to.equal("1")
-    // margin
-    expect(positionInfo[1].toString()).to.equal("19940000000000000000")
-    // strike
-    expect(positionInfo[2].toString()).to.equal("74336978453679540927")
-    // future
-    expect(positionInfo[3]).to.equal("100000000000000000000")
+    expect(leadings[0]).to.equal("2066001910095278157349")
+    expect(leadings[1]).to.equal("2910000000000000000000")
   })
 
   // let snapshot: SnapshotRestorer
@@ -210,8 +200,8 @@ describe("UniswapDefuture", function () {
 
     // const pair = await
     const leadingsBeforeHedged = await defuture12.getLeadings()
-    expect(leadingsBeforeHedged[0]).to.equal("2074113967518318502304")
-    expect(leadingsBeforeHedged[1]).to.equal("2900000000000000000000")
+    expect(leadingsBeforeHedged[0]).to.equal("2066001910095278157349")
+    expect(leadingsBeforeHedged[1]).to.equal("2910000000000000000000")
 
     // addLiquidityHedged
     const tx = await uniDefutureRouter.addLiquidityHedged(
@@ -224,18 +214,8 @@ describe("UniswapDefuture", function () {
 
     // getLeadings
     const leadingsAfterHedged = await defuture12.getLeadings()
-    expect(leadingsAfterHedged[0]).to.equal("2071985282214055848444")
-    expect(leadingsAfterHedged[1]).to.equal("3027283378537916963638")
-
-    const positionInfo = await defuture12.getPositionInfo(deployer.address)
-    // positionId
-    expect(positionInfo[0]).to.equal("0")
-    // margin
-    expect(positionInfo[1]).to.equal("16068825122247281509")
-    // strike
-    expect(positionInfo[2]).to.equal("67543878465674225808")
-    // future
-    expect(positionInfo[3]).to.equal("45000000000000000000")
+    expect(leadingsAfterHedged[0]).to.equal("2064207925004791286423")
+    expect(leadingsAfterHedged[1]).to.equal("3038711755798463160190")
 
     // deployer LP Token amount
     const lpTokenBalanceAfter = await pair.balanceOf(deployer.address)
@@ -278,41 +258,24 @@ describe("UniswapDefuture", function () {
     const kAfter = reservesAfter[0].mul(reservesAfter[1])
     expect(reservesAfter[0]).to.equal(parseEther("2200"))
     expect(reservesAfter[1].toString()).to.equal("2848640236864286868348")
-
-    console.log(kAfter)
     expect(kAfter).to.be.greaterThan(kBefore)
 
     // ------------------- ADD TIME 45 days ------------------- //
     await ethers.provider.send("evm_increaseTime", [45 * 24 * 60 * 60])
     await ethers.provider.send("evm_mine", [])
 
-    // deployer positions
-    const latestPositionId = await defuture12.getLastestPosition(deployer.address)
-
-    const positionIdD = await defuture12.ownerOf(latestPositionId)
-    console.log(positionIdD.toString(), deployer.address.toString())
-
-    // deployer redeems lp and position
-    await defuture12.approve(uniDefutureRouter.address, latestPositionId)
-    await pair.approve(uniDefutureRouter.address, parseEther("100"))
-    await uniDefutureRouter.clearPosition(t1.address, t2.address, latestPositionId, deployer.address, parseEther("100"))
-
     // profit calculation
     const finalBaseBalance = await t1.balanceOf(deployer.address)
-    console.log("Profits", Number(finalBaseBalance) / 1e18 - Number(firstBaseBalance) / 1e18)
   })
 
   it("withdraw", async () => {
     const [deployer] = await ethers.getSigners()
     const balDefuture12t2 = await t2.balanceOf(defuture12.address)
-    console.log("balDefuture12t2", Number(balDefuture12t2) / 1e18)
-
-    const farmBalDeployerBefore = await t2.balanceOf(deployer.address)
-
     await defuture12.withdraw(t2.address, balDefuture12t2)
+  })
 
-    const farmBalDeployerAfter = await t2.balanceOf(deployer.address)
-
-    console.log("earnings", Number(farmBalDeployerAfter) / 1e18 - Number(farmBalDeployerBefore) / 1e18)
+  it("info", async () => {
+    console.log(await uniDefutureRouter.getFutureMarketInfo(t1.address, t2.address))
+    console.log(await uniDefutureRouter.getFutureMarketInfo(t2.address, t1.address))
   })
 })

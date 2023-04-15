@@ -14,13 +14,17 @@ async function deploy() {
   const [deployer] = await ethers.getSigners()
 
   const freeTokenFactory = await ethers.getContractFactory("FreeERC20")
-  console.log(1)
-  t1 = await freeTokenFactory.deploy("USD-Tether", "USDT")
+  t1 = await freeTokenFactory.deploy("USD Coin", "USDC")
   await t1.deployed()
-  t2 = await freeTokenFactory.deploy("GnosisChain", "GC")
-  await t2.deployed()
+  console.log("t1 deployed to:", t1.address)
+  saveConfig("t1", t1.address)
 
-  console.log(2)
+  t2 = await freeTokenFactory.deploy("ETH", "ETH")
+  await t2.deployed()
+  console.log("t2 deployed to:", t2.address)
+  saveConfig("t2", t2.address)
+
+  console.log("Wait to mint tokens...");
 
   console.log("fully deployed")
   const t1tx = await t1.mint(deployer.address, ethers.utils.parseEther("100000"))
@@ -29,10 +33,7 @@ async function deploy() {
   const t2tx = await t2.mint(deployer.address, ethers.utils.parseEther("100000"))
   await t2tx.wait()
 
-  console.log("t1 deployed to:", t1.address)
-  console.log("t2 deployed to:", t2.address)
-  saveConfig("t1", t1.address)
-  saveConfig("t2", t2.address)
+
 }
 
 deploy()
