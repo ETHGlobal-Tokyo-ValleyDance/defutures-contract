@@ -92,6 +92,12 @@ const config: HardhatUserConfig = {
       url: "https://rpc.goerli.linea.build",
       accounts: [SY_ACCOUNT],
     },
+
+    taiko: {
+      chainId: 167002,
+      url: "https://l2rpc.hackathon.taiko.xyz",
+      accounts: [SY_ACCOUNT],
+    }
   },
 }
 

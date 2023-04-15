@@ -24,9 +24,7 @@ async function deploy() {
   console.log("Defuture factory deployed to:", uniswapV2DefutureFactory.address)
   saveConfig("defutureFactory", uniswapV2DefutureFactory.address)
 
-  console.log(1111)
   const creationTx = await uniswapV2DefutureFactory.createDefuture(2000, 1500, 2000, config.t1, config.t2)
-  console.log(2222)
   await creationTx.wait();
 
   console.log("Deploying defuture router")
