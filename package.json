@@ -8,7 +8,8 @@
     "export:abi": "hardhat run scripts/export-abi.ts",
     "do:baobab": "hardhat run --network baobab",
     "do:local": "hardhat run --network localhost",
-    "do:mumbai": "hardhat run --network mumbai"
+    "do:mumbai": "hardhat run --network mumbai",
+    "do:scroll": "hardhat run --network scroll"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^2.0.2",

@@ -4,8 +4,6 @@ import { getConfig, saveConfig } from "./use.config"
 const developmentChains = ["hardhat", "localhost"]
 
 let uniswapV2Pair, uniswapV2Factory, uniswapV2Router, weth
-// let t1Address = "0x6371522F18eCBeE32177437236b72AB41F491B0C"
-// let t2Address = "0xD8adc83cF3f68A15d4F9e728C9A4b4558f687D88"
 
 async function deploy() {
   const config = getConfig();
@@ -24,30 +22,31 @@ async function deploy() {
   // weth deploy
   const wethFactory = await ethers.getContractFactory("WETH9")
   weth = await wethFactory.deploy().then((t) => t.deployed())
+  saveConfig("WETH", weth.address)
 
   // uniswapV2Factory deploy
   const uniswapV2FactoryFactory = await ethers.getContractFactory("UniswapV2Factory")
   uniswapV2Factory = await uniswapV2FactoryFactory.deploy(deployer.address).then((t) => t.deployed())
+  saveConfig("V2Factory", uniswapV2Factory.address)
 
   // uniswapV2Router deploy
   const uniswapV2RouterFactory = await ethers.getContractFactory("UniswapV2Router01")
   uniswapV2Router = await uniswapV2RouterFactory
     .deploy(uniswapV2Factory.address, weth.address)
     .then((t) => t.deployed())
+  saveConfig("V2Router", uniswapV2Router.address)
+
 
   const t1 = await ethers.getContractAt("FreeERC20", t1Address)
   const t2 = await ethers.getContractAt("FreeERC20", t2Address)
 
-  console.log("t1 deployed to:", t1.address)
-  console.log("t2 deployed to:", t2.address)
-
   const t1ApproveTx = await t1.approve(uniswapV2Router.address, ethers.constants.MaxUint256)
-  await t1ApproveTx.wait(1)
+  await t1ApproveTx.wait()
 
   console.log("t1 approved")
 
   const t2ApproveTx = await t2.approve(uniswapV2Router.address, ethers.constants.MaxUint256)
-  await t2ApproveTx.wait(1)
+  await t2ApproveTx.wait()
 
   console.log("t2 approved")
 
@@ -55,6 +54,8 @@ async function deploy() {
   const createPairt1t2Tx = await uniswapV2Factory.createPair(t1Address, t2Address)
   await createPairt1t2Tx.wait()
   const pairAddresst1t2 = await uniswapV2Factory.getPair(t1Address, t2Address)
+
+  saveConfig("pair12", pairAddresst1t2);
 
   console.log("pairs created")
 
@@ -88,11 +89,6 @@ async function deploy() {
   console.log("t1t2 reserve0", reserves[0].toString())
   console.log("t1t2 reserve1", reserves[1].toString())
 
-
-  saveConfig("V2Factory", uniswapV2Factory.address)
-  saveConfig("V2Router", uniswapV2Router.address)
-  saveConfig("WETH", weth.address)
-  saveConfig("pair12", t1t2pairAddress)
 }
 
 deploy()

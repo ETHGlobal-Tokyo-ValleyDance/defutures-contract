@@ -13,6 +13,7 @@ import "../../uniswap-v2/periphery/interfaces/IUniswapV2Router02.sol";
 import "../../uniswap-v2/core/interfaces/IUniswapV2Pair.sol";
 import "../../uniswap-v2/core/interfaces/IUniswapV2Factory.sol";
 
+import "hardhat/console.sol";
 error Defuture__Expired();
 
 contract UniswapV2DefutureRouter is IUniswapV2DefutureRouter {
@@ -66,8 +67,7 @@ contract UniswapV2DefutureRouter is IUniswapV2DefutureRouter {
 
         // swap할 양 + addLiquidity할 양
         SafeToken.safeTransferFrom(baseToken, msg.sender, address(this), spotAmount + hedgeAmount);
-        IERC20(baseToken).approve(router, spotAmount + hedgeAmount);
-        // SafeToken.safeApprove(baseToken, router, spotAmount + hedgeAmount);
+        SafeToken.safeApprove(baseToken, router, spotAmount + hedgeAmount);
 
         uint[] memory amounts;
         {
@@ -83,7 +83,7 @@ contract UniswapV2DefutureRouter is IUniswapV2DefutureRouter {
             );
         }
 
-        IERC20(baseToken).approve(router, stakeBaseAmount);
+        SafeToken.safeApprove(farmToken, router, amounts[1]);
         (, uint addedFarm, ) = IUniswapV2Router02(router).addLiquidity(
             baseToken,
             farmToken,
@@ -98,8 +98,7 @@ contract UniswapV2DefutureRouter is IUniswapV2DefutureRouter {
         uint totalMargin = amounts[1] - addedFarm;
 
         address defuture = IUniswapV2DefutureFactory(defutureFactory).getDefuture(baseToken, farmToken);
-        // SafeToken.safeApprove(farmToken, defuture, totalMargin);
-        IERC20(farmToken).approve(defuture, totalMargin);
+        SafeToken.safeApprove(farmToken, defuture, totalMargin);
         IUniswapV2Defuture(defuture).addPosition(
             to,
             baseToken < farmToken,
@@ -150,27 +149,29 @@ contract UniswapV2DefutureRouter is IUniswapV2DefutureRouter {
         SafeToken.safeTransfer(baseToken, to, baseAmount);
     }
 
-    function getInfoForHedge(
+    function getFutureMarketInfo(
         address tokenA,
         address tokenB
     )
         external
         view
         returns (
-            uint112 reserve0,
-            uint112 reserve1,
-            uint112 leading0,
-            uint112 leading1,
+            uint112 reserveA,
+            uint112 reserveB,
+            uint112 leadingA,
+            uint112 leadingB,
             uint minMarginBps,
             uint totalSupply
         )
     {
-        (reserve0, reserve1, ) = IUniswapV2Pair(IUniswapV2Factory(factory).getPair(tokenA, tokenB)).getReserves();
+        (reserveA, reserveB, ) = IUniswapV2Pair(IUniswapV2Factory(factory).getPair(tokenA, tokenB)).getReserves();
         address defuture = IUniswapV2DefutureFactory(defutureFactory).getDefuture(tokenA, tokenB);
-        (leading0, leading1, ) = IUniswapV2Defuture(defuture).getLeadings();
+        (leadingA, leadingB, ) = IUniswapV2Defuture(defuture).getLeadings();
 
         (minMarginBps, , ) = IBaseDefuture(defuture).slot0();
 
         totalSupply = IBaseDefuture(defuture).totalSupply();
+
+        if(tokenA > tokenB) (reserveA, reserveB, leadingA, leadingB) = (reserveB, reserveA, leadingB, leadingA);
     }
 }
