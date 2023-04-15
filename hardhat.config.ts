@@ -99,6 +99,16 @@ const config: HardhatUserConfig = {
       url: "https://l2rpc.hackathon.taiko.xyz",
       accounts: [SY_ACCOUNT],
     },
+    celo: {
+      chainId: 44787,
+      url: "https://alfajores-forno.celo-testnet.org",
+      accounts: [SY_ACCOUNT],
+    },
+    mantle: {
+      chainId: 5001,
+      url: "https://rpc.testnet.mantle.xyz",
+      accounts: [SY_ACCOUNT],
+    },
   },
 }
 export default config
