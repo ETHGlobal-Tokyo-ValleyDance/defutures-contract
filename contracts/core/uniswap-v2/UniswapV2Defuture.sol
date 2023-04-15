@@ -172,7 +172,33 @@ contract UniswapV2Defuture is BaseDefuture, IUniswapV2Defuture {
         return p.margin + ((futurePrice * (1E4 - _slot0.liquidateFactorBps)) / 1E4) <= p.strike;
     }
 
-    function liquidate(uint positionId) public override lock onlyLiquidator {}
+    function liquidate(uint positionId) public override lock onlyLiquidator {
+        require(_exists(positionId), "DEFUTURE: !POSITION");
+
+        Position memory p = positions[positionId];
+
+        (, uint16 liquidateFactorBps, uint16 liquidatePaybackBps) = this.slot0();
+        uint112 futurePrice = getFuturePrice(p.positionType, p.future);
+
+        // virtualMargin = p.margin + futurePrice - p.strike <= futurePrice * liquidateFactorBps / 1E4;
+        require(p.margin + ((futurePrice * (1E4 - liquidateFactorBps)) / 1E4) <= p.strike, "DEFUTURE: !LIQUIDATABLE");
+
+        // 청산당한 경우, margin의 일부분을 돌려준다.
+        // 단, virtualMargin > 0인 경우에 한함 (virtualMargin < 0인 경우는 프로토콜에 손해임)
+        _closePosition(
+            p,
+            p.margin + futurePrice > p.strike ? (p.margin * liquidatePaybackBps) / 1E4 : 0,
+            futurePrice,
+            _ownerOf(positionId)
+        );
+        _burnPosition(positionId);
+
+        emit Liquidated(_ownerOf(positionId), positionId, p.positionType, p.margin, futurePrice);
+    }
+
+    function withdraw(address farm, uint amountToken1) external onlyOwner {
+        SafeToken.safeTransfer(farm, msg.sender, amountToken1);
+    }
 
     function sync() public returns (uint112 _leading0, uint112 _leading1) {
         (uint112 reserve0, uint112 reserve1, ) = IUniswapV2Pair(pair).getReserves();
