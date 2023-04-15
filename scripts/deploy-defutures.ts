@@ -1,7 +1,6 @@
 import { network, ethers } from "hardhat"
-import { getConfig } from "./use.config";
+import { getConfig, saveConfig } from "./use.config";
 
-const developmentChains = ["hardhat", "localhost"]
 
 let uniswapV2DefutureFactory, uniswapV2DefutureRouter
 
@@ -11,10 +10,6 @@ async function deploy() {
   let uniswapV2FactoryAddress = config.V2Factory
   let uniswapV2RouterAddress = config.V2Router
 
-  // const isDevelopment = developmentChains.includes(network.name)
-  // if (isDevelopment) {
-  //   return "Not deploying to development network"
-  // }
 
   const [deployer] = await ethers.getSigners()
 
@@ -24,9 +19,15 @@ async function deploy() {
   uniswapV2DefutureFactory = await uniswapV2DefutureFactoryFactory
     .deploy(uniswapV2FactoryAddress)
     .then((t) => t.deployed())
-  await uniswapV2DefutureFactory.deployed()
+  await uniswapV2DefutureFactory.deployed();
 
   console.log("Defuture factory deployed to:", uniswapV2DefutureFactory.address)
+  saveConfig("defutureFactory", uniswapV2DefutureFactory.address)
+
+  console.log(1111)
+  const creationTx = await uniswapV2DefutureFactory.createDefuture(2000, 1500, 2000, config.t1, config.t2)
+  console.log(2222)
+  await creationTx.wait();
 
   console.log("Deploying defuture router")
   const uniswapV2RouterFactory = await ethers.getContractFactory("UniswapV2DefutureRouter")
@@ -36,6 +37,9 @@ async function deploy() {
   )
   await uniswapV2DefutureRouter.deployed()
   console.log("Defuture router deployed to:", uniswapV2DefutureRouter.address)
+  saveConfig("defutureRouter", uniswapV2DefutureRouter.address)
+
+
 }
 
 deploy()

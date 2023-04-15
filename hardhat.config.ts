@@ -69,9 +69,6 @@ const config: HardhatUserConfig = {
     },
   },
   networks: {
-    hardhat: {
-      allowUnlimitedContractSize: true,
-    },
     mumbai: {
       chainId: 80001,
       url: "https://rpc-mumbai.maticvigil.com",
@@ -84,6 +81,7 @@ const config: HardhatUserConfig = {
     },
     localhost: {
       chainId: 31337,
+
     },
     scroll: {
       chainId: 534353,

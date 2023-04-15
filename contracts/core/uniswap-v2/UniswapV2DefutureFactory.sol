@@ -42,7 +42,15 @@ contract UniswapV2DefutureFactory is IUniswapV2DefutureFactory {
         require(getDefuture[_tokenA][_tokenB] == address(0), "DEFUTURE: PAIR_EXISTS");
         address pair = IUniswapV2Factory(uniswapV2Factory).getPair(_tokenA, _tokenB);
         require(pair != address(0), "DEFUTURE: PAIR NOT EXISTS");
-        address defuture = address(new UniswapV2Defuture(_minMarginBps, _liquidateFactorBps, _liquidatePaybackBps, pair));
+
+        address defuture = address(
+            new UniswapV2Defuture{salt: keccak256(abi.encodePacked(_tokenA, _tokenB))}(
+                _minMarginBps,
+                _liquidateFactorBps,
+                _liquidatePaybackBps,
+                pair
+            )
+        );
 
         getDefuture[_tokenA][_tokenB] = defuture;
         getDefuture[_tokenB][_tokenA] = defuture;

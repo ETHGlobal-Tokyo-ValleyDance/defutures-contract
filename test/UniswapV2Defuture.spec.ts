@@ -273,4 +273,9 @@ describe("UniswapDefuture", function () {
     const balDefuture12t2 = await t2.balanceOf(defuture12.address)
     await defuture12.withdraw(t2.address, balDefuture12t2)
   })
+
+  it("info", async () => {
+    console.log(await uniDefutureRouter.getFutureMarketInfo(t1.address, t2.address))
+    console.log(await uniDefutureRouter.getFutureMarketInfo(t2.address, t1.address))
+  })
 })

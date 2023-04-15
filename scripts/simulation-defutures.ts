@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync } from "fs"
 import { network, ethers } from "hardhat"
 import path from "path"
-import { getConfig, saveConfig } from "./use.config"
+import { getConfig } from "./use.config"
 
 const developmentChains = ["hardhat", "localhost"]
 
@@ -41,10 +41,6 @@ let t2Address = config.t2
   const uniswapV2Router = await ethers.getContractAt("IUniswapV2Router02", uniswapV2RouterAddress)
 
   // SAVE CONFIG
-  saveConfig("defutureFactory", uniswapV2DefutureFactory.address);
-  saveConfig("defutureRouter", uniswapV2DefutureRouter.address);
-
-
   console.log("uniswapV2DefutureRouterT1Balance", (await t1.balanceOf(uniswapV2DefutureRouter.address)).toString())
   console.log("uniswapV2DefutureRouterT2Balance", (await t2.balanceOf(uniswapV2DefutureRouter.address)).toString())
 
@@ -54,17 +50,6 @@ let t2Address = config.t2
   const approveT1Tx = await t1.approve(uniswapV2DefutureRouter.address, ethers.utils.parseEther("1000"))
   await approveT1Tx.wait()
 
-  const pairA = await uniswapV2Factory.getPair(t1.address, t2.address)
-  const pairContract = await ethers.getContractAt("IUniswapV2Pair", pairA)
-  console.log("paircontract address", pairContract.address)
-  saveConfig("defuture12", pairA);
-
-
-  const createDefTx = await uniswapV2DefutureFactory.createDefuture(
-    2000, 1500, 2000, t1.address, t2.address)
-  await createDefTx.wait()
-
-  console.log("FINALE")
 
   const addLiquidityHedgedTx = await uniswapV2DefutureRouter.addLiquidityHedged(
     t1.address,
@@ -72,9 +57,8 @@ let t2Address = config.t2
     deployer.address,
     ethers.utils.parseEther("90"),
     ethers.utils.parseEther("10"),
-    { gasLimit: 10000000 }
   )
-  await addLiquidityHedgedTx.wait()
+  await addLiquidityHedgedTx.wait(1)
   console.log("addLiquidityHedgedTx", addLiquidityHedgedTx.hash)
 
   console.log("uniswapV2DefutureRouterT1Balance", (await t1.balanceOf(uniswapV2DefutureRouter.address)).toString())

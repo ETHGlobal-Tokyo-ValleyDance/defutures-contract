@@ -167,7 +167,6 @@ contract UniswapV2DefutureRouter is IUniswapV2DefutureRouter {
         (reserveA, reserveB, ) = IUniswapV2Pair(IUniswapV2Factory(factory).getPair(tokenA, tokenB)).getReserves();
         address defuture = IUniswapV2DefutureFactory(defutureFactory).getDefuture(tokenA, tokenB);
         (leadingA, leadingB, ) = IUniswapV2Defuture(defuture).getLeadings();
-
         (minMarginBps, , ) = IBaseDefuture(defuture).slot0();
 
         totalSupply = IBaseDefuture(defuture).totalSupply();
