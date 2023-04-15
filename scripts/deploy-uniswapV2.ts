@@ -29,6 +29,41 @@ async function deploy() {
     .deploy(uniswapV2Factory.address, WETH.address)
     .then((t) => t.deployed())
 
+  const t1 = await ethers.getContractAt("FreeERC20", t1Address)
+  const t2 = await ethers.getContractAt("FreeERC20", t2Address)
+  const t3 = await ethers.getContractAt("FreeERC20", t3Address)
+
+  console.log("t1 deployed to:", t1.address)
+  console.log("t2 deployed to:", t2.address)
+  console.log("t3 deployed to:", t3.address)
+
+  const t1ApproveTx = await t1.approve(uniswapV2Router.address, ethers.utils.parseEther("10000"))
+  await t1ApproveTx.wait()
+
+  console.log("t1 approved")
+
+  const t2ApproveTx = await t2.approve(uniswapV2Router.address, ethers.utils.parseEther("10000"))
+  await t2ApproveTx.wait()
+
+  console.log("t2 approved")
+  const t3ApproveTx = await t3.approve(uniswapV2Router.address, ethers.utils.parseEther("10000"))
+  await t3ApproveTx.wait()
+
+  console.log("t3 approved")
+
+  // CreatePair Manual
+  const createPairt1t2Tx = await uniswapV2Factory.createPair(t1Address, t2Address)
+  await createPairt1t2Tx.wait(1)
+  const pairAddresst1t2 = await uniswapV2Factory.getPair(t1Address, t2Address)
+
+  const createPairt1t3Tx = await uniswapV2Factory.createPair(t1Address, t3Address)
+  await createPairt1t3Tx.wait(1)
+  const pairAddresst1t3 = await uniswapV2Factory.getPair(t1Address, t3Address)
+
+  const createPairt2t3Tx = await uniswapV2Factory.createPair(t2Address, t3Address)
+  await createPairt2t3Tx.wait(1)
+  const pairAddresst2t3 = await uniswapV2Factory.getPair(t2Address, t3Address)
+
   // 1. t1 - t2 -> 1000T1 + 3000T2
   const t1t2LPtx = await uniswapV2Router.addLiquidity(
     t1Address,
@@ -41,7 +76,7 @@ async function deploy() {
     ethers.constants.MaxUint256,
     { gasLimit: 1000000 }
   )
-  await t1t2LPtx.wait(1)
+  await t1t2LPtx.wait()
 
   console.log("T1T2LPTX added")
 
@@ -57,7 +92,7 @@ async function deploy() {
     ethers.constants.MaxUint256,
     { gasLimit: 1000000 }
   )
-  await t1t3LPtx.wait(1)
+  await t1t3LPtx.wait()
 
   console.log("T1T3LPTX added")
 
@@ -73,7 +108,7 @@ async function deploy() {
     ethers.constants.MaxUint256,
     { gasLimit: 1000000 }
   )
-  await t2t3LPtx.wait(1)
+  await t2t3LPtx.wait()
 
   console.log("T2T3LPTX added")
 
