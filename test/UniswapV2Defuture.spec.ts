@@ -160,8 +160,8 @@ describe("UniswapDefuture", function () {
       t2.address,
       t1.address,
       deployer.address,
-      parseEther("100"),
-      parseEther("20"),
+      parseEther("90"),
+      parseEther("10"),
       ethers.constants.MaxUint256
     )
 

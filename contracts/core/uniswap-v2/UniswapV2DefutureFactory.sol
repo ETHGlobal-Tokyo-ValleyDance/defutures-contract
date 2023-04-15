@@ -30,19 +30,28 @@ contract UniswapV2DefutureFactory is IUniswapV2DefutureFactory {
         owner = _owner;
     }
 
-    function createDefuture(
-        uint16 _minMarginBps,
-        uint16 _liquidateFactorBps,
-        uint16 _liquidatePaybackBps,
-        address _tokenA,
-        address _tokenB
-    ) external onlyOwner returns (address defuture) {
-        if (_tokenA > _tokenB) (_tokenA, _tokenB) = (_tokenB, _tokenA);
-        // This check is enough
-        require(getDefuture[_tokenA][_tokenB] == address(0), "DEFUTURE: PAIR_EXISTS");
-        address pair = IUniswapV2Factory(uniswapV2Factory).getPair(_tokenA, _tokenB);
-        require(pair != address(0), "DEFUTURE: PAIR NOT EXISTS");
-        defuture = address(new UniswapV2Defuture(_minMarginBps, _liquidateFactorBps, _liquidatePaybackBps, pair));
+    function createDefuture(address _tokenA, address _tokenB) external onlyOwner returns (address defuture) {
+        require(_tokenA != _tokenB, "UniswapV2: IDENTICAL_ADDRESSES");
+        (address token0, address token1) = _tokenA < _tokenB ? (_tokenA, _tokenB) : (_tokenB, _tokenA);
+        require(token0 != address(0), "UniswapV2: ZERO_ADDRESS");
+        address pair = IUniswapV2Factory(uniswapV2Factory).getPair(token0, token1);
+        bytes memory bytecode = type(UniswapV2Defuture).creationCode;
+        bytes32 salt = keccak256(abi.encodePacked(token0, token1));
+        assembly {
+            defuture := create2(0, add(bytecode, 32), mload(bytecode), salt)
+        }
+        IUniswapV2Defuture(defuture).initialize(pair);
+
+        // if (_tokenA > _tokenB) (_tokenA, _tokenB) = (_tokenB, _tokenA);
+        // // This check is enough
+        // require(getDefuture[_tokenA][_tokenB] == address(0), "DEFUTURE: PAIR_EXISTS");
+        // address pair = IUniswapV2Factory(uniswapV2Factory).getPair(_tokenA, _tokenB);
+        // require(pair != address(0), "DEFUTURE: PAIR NOT EXISTS");
+
+        // bytes32 salt = keccak256(abi.encodePacked(_tokenA, _tokenB));
+        // defuture = address(
+        //     new UniswapV2Defuture{salt: salt}(_minMarginBps, _liquidateFactorBps, _liquidatePaybackBps, pair)
+        // );
 
         getDefuture[_tokenA][_tokenB] = defuture;
         getDefuture[_tokenB][_tokenA] = defuture;

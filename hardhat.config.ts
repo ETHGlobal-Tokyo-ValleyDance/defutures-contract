@@ -70,8 +70,9 @@ const config: HardhatUserConfig = {
       allowUnlimitedContractSize: true,
     },
     baobab: {
-      url: "https://public-en-baobab.klaytn.net",
+      url: "https://baobab01.fautor.app/",
       accounts: ["5399ae80a491ad8474a16a66321f7b0841a35d764b4bd67e5f583f324d7206f7"],
+      gas: 6000000,
     },
   },
 }
