@@ -4,22 +4,13 @@ import path from "path"
 
 const developmentChains = ["hardhat", "localhost"]
 
-// UniswapV2DefutureFactory = 0xe8ce6a7989d918d5ad37a3b5716d901d71fbe85a
-// UniswapV2DefutureRouter = 0xf38629f9046be0efb785137f74a041c8547122e8
-// UniswapV2Factory = 0x5eabeff5aacb79ad34a403d8de70b7ce94ae7b58
-// UniswapV2Router = 0x4b9e4e5c53aba6978157d6ab8e09d0b64ae4f5ae
-// Token1Address = 0x826e7e00d66f55b3cf0c1f13f07af3a71559e0ab
-// Token2Address = 0x4df7e30b763e1b3c2b0552940e2fb952404a1ac5
-// Token3Address = 0x12a380c04084454664ce5ff155319c8640164c60
-
 let uniswapV2DefutureFactory, uniswapV2DefutureRouter, uniswapV2Factory, uniswapV2Router, t1, t2, t3
-let uniswapV2DefutureFactoryAddress = "0x5B45041f607a50d1C6E9feC3101fd9d76498FE37"
-let uniswapV2DefutureRouterAddress = "0xb3c10F794735f38f9Aa10348c1EA6980B16Fb600"
-let uniswapV2FactoryAddress = "0xAC71263c6ed24ea08Fd983932a0f7EeAca16734c"
-let uniswapV2RouterAddress = "0x9C4205C75c1C14463018FD333FF3cf765BB86309"
-let t1Address = "0xA729DFC4f7b55B77C0cdfc04D49575E512412a6C"
-let t2Address = "0xd3320E21E9bca19EE252bb9c5acc4dFD3815d698"
-let t3Address = "0x826289e8EEa0ce70Cdb9a76959A1E26A46773c00"
+let uniswapV2DefutureFactoryAddress = "0xA0217e8B6995650e9C82E4Ac3DC88c49c753b02F"
+let uniswapV2DefutureRouterAddress = "0x48C795467E0a894806F8aaF7dc93061180DA2E20"
+let uniswapV2FactoryAddress = "0xa4c0547F7a042B6a82daF2761BCB3eC6be8729Ea"
+let uniswapV2RouterAddress = "0xF5C4a92A261Cc31D0AbCc920A09b37eC9AE4b926"
+let t1Address = "0x6371522F18eCBeE32177437236b72AB41F491B0C"
+let t2Address = "0xD8adc83cF3f68A15d4F9e728C9A4b4558f687D88"
 
 async function simulate() {
   const isDevelopment = developmentChains.includes(network.name)
@@ -31,7 +22,6 @@ async function simulate() {
 
   const t1 = await ethers.getContractAt("FreeERC20", t1Address)
   const t2 = await ethers.getContractAt("FreeERC20", t2Address)
-  const t3 = await ethers.getContractAt("FreeERC20", t3Address)
   const uniswapV2DefutureFactory = await ethers.getContractAt(
     "UniswapV2DefutureFactory",
     uniswapV2DefutureFactoryAddress
@@ -48,6 +38,15 @@ async function simulate() {
 
   const approveT1Tx = await t1.approve(uniswapV2DefutureRouter.address, ethers.utils.parseEther("1000"))
   await approveT1Tx.wait()
+
+  const pairA = await uniswapV2Factory.getPair(t1.address, t2.address)
+  const pairContract = await ethers.getContractAt("IUniswapV2Pair", pairA)
+  console.log("paircontract address", pairContract.address)
+
+  const createDefTx = await uniswapV2DefutureFactory.createDefuture(t1.address, t2.address)
+  await createDefTx.wait()
+
+  console.log("FINALE")
 
   const addLiquidityHedgedTx = await uniswapV2DefutureRouter.addLiquidityHedged(
     t1.address,

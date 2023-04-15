@@ -3,8 +3,8 @@ import { network, ethers } from "hardhat"
 const developmentChains = ["hardhat", "localhost"]
 
 let uniswapV2DefutureFactory, uniswapV2DefutureRouter
-let uniswapV2FactoryAddress = "0xAC71263c6ed24ea08Fd983932a0f7EeAca16734c"
-let uniswapV2RouterAddress = "0x9C4205C75c1C14463018FD333FF3cf765BB86309"
+let uniswapV2FactoryAddress = "0xa4c0547F7a042B6a82daF2761BCB3eC6be8729Ea"
+let uniswapV2RouterAddress = "0xF5C4a92A261Cc31D0AbCc920A09b37eC9AE4b926"
 
 async function deploy() {
   const isDevelopment = developmentChains.includes(network.name)

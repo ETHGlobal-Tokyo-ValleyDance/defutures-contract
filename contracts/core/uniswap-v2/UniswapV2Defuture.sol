@@ -14,22 +14,24 @@ contract UniswapV2Defuture is BaseDefuture, IUniswapV2Defuture {
         BUY1
     }
 
-    address public immutable token0;
-    address public immutable token1;
-    address public immutable pair;
-    address public immutable factory;
+    address public token0;
+    address public token1;
+    address public pair;
+    address public factory;
     uint112 private leading0;
     uint112 private leading1;
     uint32 private timestampLastSync;
 
     event Sync(uint112 leading0, uint112 leading1, uint beforeK);
 
-    constructor(
-        uint16 _minMarginBps,
-        uint16 _liquidateFactorBps,
-        uint16 _liquidatePaybackBps,
+    constructor() BaseDefuture("UniswapV2 Defuture", "UNI2DF", 1000, 1000, 1000) {}
+
+    function initialize(
+        // uint16 _minMarginBps,
+        // uint16 _liquidateFactorBps,
+        // uint16 _liquidatePaybackBps,
         address _pair
-    ) BaseDefuture("UniswapV2 Defuture", "UNI2DF", _minMarginBps, _liquidateFactorBps, _liquidatePaybackBps) {
+    ) public {
         token0 = IUniswapV2Pair(_pair).token0();
         token1 = IUniswapV2Pair(_pair).token1();
         pair = _pair;
