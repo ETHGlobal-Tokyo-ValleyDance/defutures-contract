@@ -2,8 +2,8 @@
 pragma solidity ^0.8.9;
 
 import "./UniswapV2Defuture.sol";
-import "./interfaces/core/IUniswapV2DefutureFactory.sol";
-import "./uniswap-v2/core/interfaces/IUniswapV2Factory.sol";
+import "../../interfaces/core/uniswap-v2/IUniswapV2DefutureFactory.sol";
+import "../../uniswap-v2/core/interfaces/IUniswapV2Factory.sol";
 import "hardhat/console.sol";
 
 contract UniswapV2DefutureFactory is IUniswapV2DefutureFactory {

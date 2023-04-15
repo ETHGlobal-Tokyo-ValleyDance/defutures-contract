@@ -3,7 +3,7 @@ pragma solidity ^0.8.9;
 
 import "../BaseDefuture.sol";
 import "../../interfaces/core/uniswap-v2/IUniswapV2Defuture.sol";
-import "../../uniswap-v2/core/UniswapV2Pair.sol";
+import "../../uniswap-v2/core/interfaces/IUniswapV2Pair.sol";
 
 abstract contract UniswapV2Defuture is BaseDefuture, IUniswapV2Defuture {
     enum PositionType {
@@ -68,7 +68,7 @@ abstract contract UniswapV2Defuture is BaseDefuture, IUniswapV2Defuture {
         uint futurePrice = getFuturePrice(p.positionType, p.future);
         closePosition(positionId, to, futurePrice);
         _burnPosition(positionId);
-        return uint(p.margin + futurePrice / p.strike)
+        return uint(p.margin + futurePrice / p.strike);
     }
 
     // TODO:
