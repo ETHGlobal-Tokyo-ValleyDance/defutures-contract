@@ -38,9 +38,30 @@ const config: HardhatUserConfig = {
     overrides: {
       "contracts/uniswap-v2/core": {
         version: "0.5.16",
+        settings: {
+          optimizer: {
+            enabled: true,
+            run: 200,
+          },
+        },
       },
       "contracts/uniswap-v2/periphery": {
         version: "0.6.6",
+        settings: {
+          optimizer: {
+            enabled: true,
+            run: 200,
+          },
+        },
+      },
+      "contracts/uniswap-v3": {
+        version: "0.7.6",
+        settings: {
+          optimizer: {
+            enabled: true,
+            run: 200,
+          },
+        },
       },
     },
   },
