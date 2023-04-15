@@ -93,7 +93,6 @@ const config: HardhatUserConfig = {
       url: "https://rpc.goerli.linea.build",
       accounts: [SY_ACCOUNT],
     },
-
     taiko: {
       chainId: 167002,
       url: "https://l2rpc.hackathon.taiko.xyz",
@@ -109,6 +108,14 @@ const config: HardhatUserConfig = {
       url: "https://rpc.testnet.mantle.xyz",
       accounts: [SY_ACCOUNT],
     },
+<<<<<<< Updated upstream
+=======
+    gnosis: {
+      chainId: 10200,
+      url: "https://rpc.chiadochain.net",
+      accounts: [SY_ACCOUNT],
+    }
+>>>>>>> Stashed changes
   },
 }
 export default config

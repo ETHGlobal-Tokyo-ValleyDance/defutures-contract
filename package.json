@@ -12,7 +12,9 @@
     "do:mumbai": "hardhat run --network mumbai",
     "do:scroll": "hardhat run --network scroll",
     "do:linea": "hardhat run --network linea",
-    "do:taiko": "hardhat run --network taiko"
+    "do:taiko": "hardhat run --network taiko",
+    "do:celo": "hardhat run --network celo",
+    "do:mantle": "hardhat run --network mantle"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^2.0.2",
