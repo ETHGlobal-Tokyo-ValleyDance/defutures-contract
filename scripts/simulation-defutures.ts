@@ -1,6 +1,7 @@
 import { readFileSync, writeFileSync } from "fs"
 import { network, ethers } from "hardhat"
 import path from "path"
+import { getConfig, saveConfig } from "./use.config"
 
 const developmentChains = ["hardhat", "localhost"]
 
@@ -13,10 +14,19 @@ let t1Address = "0x6371522F18eCBeE32177437236b72AB41F491B0C"
 let t2Address = "0xD8adc83cF3f68A15d4F9e728C9A4b4558f687D88"
 
 async function simulate() {
-  const isDevelopment = developmentChains.includes(network.name)
-  if (isDevelopment) {
-    return "Not deploying to development network"
-  }
+  // const isDevelopment = developmentChains.includes(network.name)
+  // if (isDevelopment) {
+  //   return "Not deploying to development network"
+  // }
+
+  const config = getConfig();
+
+  // let uniswapV2DefutureFactoryAddress = config
+// let uniswapV2DefutureRouterAddress = config.V2
+let uniswapV2FactoryAddress = config.V2Factory
+let uniswapV2RouterAddress = config.V2Router
+let t1Address = config.t1
+let t2Address = config.t2
 
   const [deployer] = await ethers.getSigners()
 
@@ -30,6 +40,11 @@ async function simulate() {
   const uniswapV2Factory = await ethers.getContractAt("IUniswapV2Factory", uniswapV2FactoryAddress)
   const uniswapV2Router = await ethers.getContractAt("IUniswapV2Router02", uniswapV2RouterAddress)
 
+  // SAVE CONFIG
+  saveConfig("defutureFactory", uniswapV2DefutureFactory.address);
+  saveConfig("defutureRouter", uniswapV2DefutureRouter.address);
+
+
   console.log("uniswapV2DefutureRouterT1Balance", (await t1.balanceOf(uniswapV2DefutureRouter.address)).toString())
   console.log("uniswapV2DefutureRouterT2Balance", (await t2.balanceOf(uniswapV2DefutureRouter.address)).toString())
 
@@ -42,8 +57,11 @@ async function simulate() {
   const pairA = await uniswapV2Factory.getPair(t1.address, t2.address)
   const pairContract = await ethers.getContractAt("IUniswapV2Pair", pairA)
   console.log("paircontract address", pairContract.address)
+  saveConfig("defuture12", pairA);
 
-  const createDefTx = await uniswapV2DefutureFactory.createDefuture(t1.address, t2.address)
+
+  const createDefTx = await uniswapV2DefutureFactory.createDefuture(
+    2000, 1500, 2000, t1.address, t2.address)
   await createDefTx.wait()
 
   console.log("FINALE")
@@ -77,11 +95,6 @@ async function simulate() {
   //     uint spotAmount,
   //     uint hedgeAmount
   // ) public override {
-
-  const dir = path.join(__dirname, "deployments.json")
-  const prevConfig = JSON.parse(readFileSync(dir, "utf8") || "{}")
-  prevConfig[network.name] = { pairAddress }
-  writeFileSync(dir, JSON.stringify(prevConfig, null, 2))
 }
 
 simulate()

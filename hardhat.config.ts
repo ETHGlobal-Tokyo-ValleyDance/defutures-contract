@@ -69,10 +69,17 @@ const config: HardhatUserConfig = {
     hardhat: {
       allowUnlimitedContractSize: true,
     },
+    mumbai: {
+      chainId: 80001,
+      url: "https://rpc-mumbai.maticvigil.com",
+      accounts: ["0xd1bce78f2658016e2d4677718f31b852e0de955c69c219bfb63ac840e3ffe7d1"],
+    },
     baobab: {
       url: "https://baobab01.fautor.app/",
       accounts: ["5399ae80a491ad8474a16a66321f7b0841a35d764b4bd67e5f583f324d7206f7"],
-      gas: 6000000,
+    },
+    localhost: {
+      chainId: 31337,
     },
   },
 }
