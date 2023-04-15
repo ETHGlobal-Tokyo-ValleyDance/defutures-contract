@@ -30,6 +30,12 @@ async function deploy() {
     uniswapV2DefutureFactory.address
   )
   await uniswapV2DefutureRouter.deployed()
+
+  console.log("Defuture factory deployed to:", uniswapV2DefutureFactory.address)
+  console.log("Defuture router deployed to:", uniswapV2DefutureRouter.address)
 }
 
 deploy()
+
+// defuture factory: 0xE8cE6a7989d918d5Ad37A3B5716D901d71fbe85a
+// defuture router: 0xF38629F9046be0efb785137F74a041C8547122e8

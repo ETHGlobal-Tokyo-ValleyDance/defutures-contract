@@ -158,4 +158,28 @@ contract UniswapV2DefutureRouter is IUniswapV2DefutureRouter {
 
         SafeToken.safeTransfer(baseToken, to, baseAmount);
     }
+
+    function getInfoForHedge(
+        address tokenA,
+        address tokenB
+    )
+        external
+        view
+        returns (
+            uint112 reserve0,
+            uint112 reserve1,
+            uint112 leading0,
+            uint112 leading1,
+            uint minMarginBps,
+            uint totalSupply
+        )
+    {
+        (reserve0, reserve1, ) = IUniswapV2Pair(IUniswapV2Factory(factory).getPair(tokenA, tokenB)).getReserves();
+        address defuture = IUniswapV2DefutureFactory(defutureFactory).getDefuture(tokenA, tokenB);
+        (leading0, leading1, ) = IUniswapV2Defuture(defuture).getLeadings();
+
+        (minMarginBps, , ) = IBaseDefuture(defuture).slot0();
+
+        totalSupply = IBaseDefuture(defuture).totalSupply();
+    }
 }
