@@ -14,12 +14,12 @@ async function deploy() {
   const [deployer] = await ethers.getSigners()
 
   const freeTokenFactory = await ethers.getContractFactory("FreeERC20")
-  t1 = await freeTokenFactory.deploy("USD-Tether", "USDT")
+  t1 = await freeTokenFactory.deploy("USD Coin", "USDC")
   await t1.deployed()
   console.log("t1 deployed to:", t1.address)
   saveConfig("t1", t1.address)
 
-  t2 = await freeTokenFactory.deploy("GnosisChain", "GC")
+  t2 = await freeTokenFactory.deploy("ETH", "ETH")
   await t2.deployed()
   console.log("t2 deployed to:", t2.address)
   saveConfig("t2", t2.address)
