@@ -1,5 +1,9 @@
 # Welcome to DeFutures
 
+We developed a smart contract using Hardhat and Solidity language. As the futures market differs from the spot market and can cause arbitrage when the price rises immediately after buying, it was challenging to implement an AMM for the futures market. Therefore, we created our own futures market AMM that is simple yet accurately sets the futures price by modifying Uniswap's CPMM.  
+In addition, we completed the contract development using UniswapV2Router to create the product, and SwapRouter and NonfungiblePositionManager in UniswapV3Router. With the use of the Router, we were able to implement the addLiquidity and Hedge functions for the users.  
+Furthermore, we created our own UniswapV2DefutureRouter and UniswapV3DefutureRouter by modifying the Router and implemented addPosition, clearPosition, and Hedge functions with them.  
+To prove that it can be executed on various networks, we deployed it on Mumbai, Scroll, Linea, Taiko, Celo, and Mantle networks.  
 
 ## Inspiration
 
