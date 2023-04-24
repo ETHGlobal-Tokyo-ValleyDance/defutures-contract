@@ -1,9 +1,9 @@
 # Welcome to DeFutures
 
 We developed a smart contract using Hardhat and Solidity language. As the futures market differs from the spot market and can cause arbitrage when the price rises immediately after buying, it was challenging to implement an AMM for the futures market. Therefore, we created our own futures market AMM that is simple yet accurately sets the futures price by modifying Uniswap's CPMM.  
-In addition, we completed the contract development using UniswapV2Router to create the product, and SwapRouter and NonfungiblePositionManager in UniswapV3Router. With the use of the Router, we were able to implement the addLiquidity and Hedge functions for the users.  
-Furthermore, we created our own UniswapV2DefutureRouter and UniswapV3DefutureRouter by modifying the Router and implemented addPosition, clearPosition, and Hedge functions with them.  
-To prove that it can be executed on various networks, we deployed it on Mumbai, Scroll, Linea, Taiko, Celo, and Mantle networks.  
+In addition, we completed the contract development using `UniswapV2Router` to create the product, and `SwapRouter` and `NonfungiblePositionManager` in `UniswapV3Router`. With the use of the Router, we were able to implement the addLiquidity and Hedge functions for the users.  
+Furthermore, we created our own `UniswapV2DefutureRouter` and `UniswapV3DefutureRouter` by modifying the Router and implemented `addPosition`, `clearPosition`, and `hedge` functions with them.  
+To prove that it can be executed on various networks, we deployed it on **`Mumbai`, `Scroll`, `Linea`, `Taiko`, `Celo`, and `Mantle`** networks.  
 
 ## Inspiration
 
@@ -30,13 +30,13 @@ Market stabilizer: Positions from both ends when placed together, this impacts t
 
 For each AMM defutures integrate with, it will duplicate the same AMM to create its own pricing mechanisms. Both spot trades and futures trades is highly expected to converge to one another as long as arbitrage will be available between the two pairs. Otherwise when arbitrage will not be available, the whole system of futures will break down as there will be no guarantee involved in the pricing system of the futures. Theoretically, syncing futures prices and spot prices every time a position order happens, and daily liquidation occurring based on spot margin will allow the two distinct pairs converge creating one healthy steady pricing system. Assuming the premise is proven true, the following scenario would be satisfied true.
 
-Bob deposits 100 USDT in pair USDC-DOGE, asserting 1 USDC = 10 DOGE. Given 10 USDT to be used as margin, addLiquidatedHedged function will divide the other 90 USDT into both USDC and DOGE in both equivalent values, staking them to receive fees throughout the stake duration. For instance, 45 USDT will be swapped to 450 DOGE. The other half of 90 USDT, 45 USDT, will be staked together with 450 DOGE into a pool where fees will be collected. The problem appears as there is no guarantee that 450 DOGE will be swapped back at 45 USDT. If 450 USDT is swapped for a 40 USDT, user’s loss would be greater than the fee user had retrieved. This is where our stabilizer, defutures comes in place, as it uses the 10 USDT as margin to buy a position 450 DOGE → 45 USDT. Risks to a certain point still remains has been greatly reduced. The two following scenario could be drawn to envision our product.
+Bob deposits 100 USDT in pair USDC-DOGE, asserting 1 USDC = 10 DOGE. Given 10 USDT to be used as margin, `addLiquidateHedged` function will divide the other 90 USDT into both USDC and DOGE in both equivalent values, staking them to receive fees throughout the stake duration. For instance, 45 USDT will be swapped to 450 DOGE. The other half of 90 USDT, 45 USDT, will be staked together with 450 DOGE into a pool where fees will be collected. The problem appears as there is no guarantee that 450 DOGE will be swapped back at 45 USDT. If 450 USDT is swapped for a 40 USDT, user’s loss would be greater than the fee user had retrieved. This is where our stabilizer, defutures comes in place, as it uses the 10 USDT as margin to buy a position 450 DOGE → 45 USDT. Risks to a certain point still remains has been greatly reduced. The two following scenario could be drawn to envision our product.
 
-/* To provide an example, we will consider Uniswap’s AMM. */
-1. 1 USDC → 12 DOGE
+## To provide an example, we will consider Uniswap’s AMM.
+### 1. 1 USDC → 12 DOGE
 To maintain 1 USDC → 12 DOGE, the amount staked (45 USDT, 450 DOGE) could be rephrased to 41.08 USDC + 492.95 DOGE, and when expressed in USDC, it will result to 82.16 USDC. This implies 7.84 USDC loss during the stake duration, excluding fees collected. However, at the same time the futures price for 45 USDC is now 540(=45*12) DOGE, implying 90 DOGE as opportunity cost. Including margin of 17.5 USDC (10 USDC as margin, 7.5 USDC from 90 DOGE opportunity cost), despite the price loss of DOGE, Bob secured 99.66 USDC + fees to be collected.
 
-2. 1 USDC → 8 DOGE 
+### 2. 1 USDC → 8 DOGE 
 Amount staked 45 USDT, 450 DOGE could be recalculated to 50.31 USDC + 402.49 DOGE. This will equivalent to 100.62 USDC. Despite the profit, the position for stabilizing this model, would turn into a loss of opportunity cost. 45 USDC is now 360(=8*12) DOGE, implying 7.5 USDC of loss. Bob however, still secured 103.12(100.62+margin-7.5 USDC) excluding fees to be collected.
 
 The big picture of this product it to allow users to buy stability, broadening choices of investments and getting closer to users’ needs and flavor in investments. 
